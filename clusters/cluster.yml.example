@@ -1,0 +1,20 @@
+# use file name as cluster name
+# the first three nodes will be k8s cluster masters
+# NOTE: don't use '"' or "'" to enclose string, since shell script will use awk or cut to fetch values
+192.168.100.216: MYPASS
+192.168.100.203: MYPASS
+192.168.100.211: MYPASS
+kubeVersion: v1.15.0
+# set force to true to override known cluster and deployer a new one
+force: false
+
+
+#
+# cluster keepalived-vip setting
+#
+vip: YOUR_CLUSTER_VIP
+vip_interface: YOUR_VIP_INTERFACE
+virtual_router_id: YOUR_VIRTUAL_ROUTER_ID
+# NOTE: use '"' to enclose nodes IPs which to hold VIP
+# e.g. all_node_ips: "IP1 IP2 IP3", masters IPs will be used if not set
+all_vip_listeners:

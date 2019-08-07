@@ -1,0 +1,26 @@
+onecache build with health check inside
+multiple k8s version support
+k8s upgrade
+cluster info cache
+harbor HA
+harbor gc
+
+
+# DONE
+repos:
+  - yum
+  - pypi
+  - harbor
+    - k8s v1.15.0
+  - chart
+  - file download server
+ssh key authorize
+docker service startpost:
+  - compose down harbor and up again, with checking if any Exited
+  - restart repo, with checking unhealthy
+  - restart chartmuseum
+k8s cluster deployed with:
+  - helm
+post deploy:
+  - ingress/traefik
+  - keepalived-vip

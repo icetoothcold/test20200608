@@ -1,0 +1,32 @@
+# from https://github.com/helm/charts
+
+# refer: https://codefresh.io/docs/docs/new-helm/managed-helm-repository/
+# DELETE curl -X DELETE -v -H "Authorization: Bearer <api-key>" https://<repo>/api/<codefresh-account-name>/<codefresh-helm-repo-name>/charts/<chart-name>/<chart-version>
+
+# traefik
+# values.yaml:
+# - image: for private repo // {{ imageRepo }}
+# - serviceType: NodePort
+# - replicas: 2
+# - nodeSelector to match: node-role.kubernetes.io/master: ""
+# - tolerations:
+#   - key: "key"
+#   - operator: "Exists"
+#   - effect: "NoSchedule"
+# - rbac.enabled: true
+# - deployment:
+#     hostPort:
+#       httpEnabled: true
+#       httpsEnabled: true
+#       dashboardEnabled: true
+#       httpPort: 80
+#       httpsPort: 443
+#       dashboardPort: 8080
+# - externalIP // abort
+#     192.168.100.100
+# - ssl.enabled: true
+# templates/deployment.yaml
+#      {{- if .Values.hostNetwork }}
+#      hostNetwork: {{ .Values.hostNetwork }}
+#      {{- end }}
+

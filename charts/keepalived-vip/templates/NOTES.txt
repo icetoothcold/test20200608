@@ -1,0 +1,1 @@
+The VIP {{ .Values.daemonset.env.vip }} will raise on interface {{ .Values.daemonset.env.interface }}.

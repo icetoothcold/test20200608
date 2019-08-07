@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: keepalived-vip
+  namespace: kube-system
+data:
+  keepalived.conf.temp: |
+    vrrp_instance VI_1 {
+        state BACKUP
+        interface eth0
+        garp_master_delay 3
+        virtual_router_id <VRID>
+        priority 100
+        nopreempt
+        advert_int <AD_INT>
+        virtual_ipaddress {
+            <VIP> dev <INTF>
+        }
+        unicast_src_ip <MY_IP>
+        unicast_peer {
+    <PEERS>
+        }
+    }

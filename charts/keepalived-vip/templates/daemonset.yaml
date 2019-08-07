@@ -1,0 +1,47 @@
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: keepalived-vip
+  namespace: kube-system
+spec:
+  template:
+    metadata:
+      labels:
+        name: keepalived-vip
+    spec:
+      hostNetwork: true
+      containers:
+        - name: keepalived-vip
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            privileged: true
+          env:
+            - name: INTF
+              value: "{{ .Values.daemonset.env.interface }}"
+            - name: VRID
+              value: "{{ .Values.daemonset.env.virtual_router_id }}"
+            - name: VIP
+              value: "{{ .Values.daemonset.env.vip }}"
+            - name: AD_INT
+              value: "{{ .Values.daemonset.env.advert_interval }}"
+            - name: ALL_IPS
+              value: "{{ .Values.daemonset.env.all_node_ips }}"
+          volumeMounts:
+          - mountPath: /config
+            name: config
+      {{- if .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 8 }}
+      {{- end }}
+      hostNetwork: true
+      restartPolicy: Always
+      {{- if and (.Values.tolerations) (semverCompare "^1.6-0" .Capabilities.KubeVersion.GitVersion) }}
+      tolerations:
+{{ toYaml .Values.tolerations | indent 6 }}
+      {{- end }}
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: keepalived-vip
+        name: config

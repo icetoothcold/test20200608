@@ -1,0 +1,6 @@
+docker_insecure_registries:
+   - {{ imageRepo }}
+docker_rh_repo_base_url: "{{ pkgRepo }}"
+docker_rh_repo_gpgkey:
+dockerproject_rh_repo_base_url: "{{ pkgRepo }}"
+dockerproject_rh_repo_gpgkey:

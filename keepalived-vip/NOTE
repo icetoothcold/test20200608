@@ -1,0 +1,15 @@
+To build keepalived:
+
+yum install -y aclocal autoheader automake autoreconf gcc openssl-devel make
+
+curl -o keepalived.tar.gz https://codeload.github.com/acassen/keepalived/tar.gz/v2.0.10
+
+tar xf keepalived.tar.gz
+
+cd keepalived-2.0.10
+
+./build_setup
+
+./configure
+
+make

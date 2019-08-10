@@ -2,18 +2,26 @@ rpmsPath=$rootPath/rpms_and_files
 imgPath=$rootPath/images
 scriptPath=$rootPath/scripts
 chartPath=$rootPath/charts
+versionPath=$rootPath/versions
+inventoryPath=$rootPath/kubespray/inventory
+clusterPath=$rootPath/clusters
 
 
 infraIP=`cat $rootPath/infra.yml | awk -F'"' '/myIP/{print $2}'`
 imgRepo=`cat $rootPath/infra.yml | awk -F'"' '/imageRepo/{print $2}'`
 pkgRepo=`cat $rootPath/infra.yml | awk -F'"' '/pkgRepo/{print $2}'`
 pkgRepoHost=`echo $pkgRepo | cut -d '/' -f 3 | cut -d ':' -f 1`
+pkgRepoPort=`echo $pkgRepo | cut -d ':' -f 3`
 chartRepo=`cat $rootPath/infra.yml | awk -F'"' '/chartRepo/{print $2}'`
 chartRepoHost=`echo $chartRepo | cut -d '/' -f 3 | cut -d ':' -f 1`
 chartRepoPort=`echo $chartRepo | cut -d ':' -f 3`
 harborAdminPw=`cat $rootPath/infra.yml | awk -F'"' '/harborAdminPw/{print $2}'`
 localInfraChartRepo=`cat $rootPath/infra.yml | awk -F'"' '/localInfraChartRepo/{print $2}'`
 pypiPort=`cat $rootPath/infra.yml | awk '/pypiPort/{print $2}'`
+ldapOrgName=`cat $rootPath/infra.yml | awk -F'"' '/ldapOrgName/{print $2}'`
+ldapDomain=`cat $rootPath/infra.yml | awk -F'"' '/ldapDomain/{print $2}'`
+ldapRootPW=`cat $rootPath/infra.yml | awk -F'"' '/ldapRootPW/{print $2}'`
+ldapBindDN=`cat $rootPath/infra.yml | awk -F'"' '/ldapBindDN/{print $2}'`
 
 
 tasksNum=`grep -c '^echo_task ' $0`
@@ -91,7 +99,7 @@ function pre_deploy_check
     if [[ -z $1 || $1 == "-h" ]]; then
         echo "bash $0 [-h] <YOUR_CLUSTER_FILE_NAME>"
         echo -e "\t-h: show this help"
-        echo -e "\tYour cluster file should be under $rootPath/clusters, and ends with .yml"
+        echo -e "\tYour cluster file should be under $clusterPath, and ends with .yml"
         echo -e "\tYour cluster file should be a yaml file, and it's format should be like:"
         echo -e "\t\tclusterName: YOUR_CLUSTER_NAME"
         echo -e "\t\tIP1: IP1_PASSWORKD"
@@ -109,12 +117,18 @@ function pre_deploy_check
 function parse_cluster_file
 {
     kubeVersion=`cat $clusterFile | awk '/kubeVersion/{print $2}'`
-    kubeVersion=`ls $rootPath/versions | grep $kubeVersion`
+    kubeVersion=`ls $versionPath | grep $kubeVersion`
     if [[ $kubeVersion == "" ]]; then
         echo "Version not found, or not supported"
-        echo -e "Chose one of the following version:\n`ls $rootPath/versions | egrep -v \"(common)\"`"
+        echo -e "Chose one of the following version:\n`ls $versionPath | egrep -v \"(common)\"`"
         parseFailed=1
     fi
+    if [[ `ls $versionPath | grep -c $kubeVersion` -ne 1 ]]; then
+        echo "Version can't determine"
+        echo -e "Chose one of the following version:\n`ls $versionPath | egrep -v \"(common)\"`"
+        parseFailed=1
+    fi
+    sed -i "s/kubeVersion.*/kubeVersion: $kubeVersion/" $clusterFile
     force=`cat $clusterFile | awk '/force/{print $2}'`
     if [[ $force != "true" ]]; then
         force="false"
@@ -137,12 +151,40 @@ function post_deploy_check
     if [[ -z $1 || $1 == "-h" ]]; then
         echo "bash $0 [-h] <YOUR_CLUSTER_NAME>"
         echo -e "\t-h: show this help"
-        echo -e "\tYour cluster file should be under $rootPath/clusters, and ends with .yml"
+        echo -e "\tYour cluster file should be under $clusterPath, and ends with .yml"
         checkFailed=1
     fi
-    if [[ ! -d $rootPath/kubespray/inventory/$1 ]]; then
-        echo "Your cluster name cannot be found under $rootPath/kubespray/inventory"
+    if [[ ! -d $inventoryPath/$1 ]]; then
+        echo "Your cluster name cannot be found under $inventoryPath"
         echo "Seems not deployed yet!"
         checkFailed=1
     fi
+}
+
+
+function verify_repo_up
+{
+    up=0
+    for i in {1..20}; do
+        if [[ $1 == "harbor" ]]; then
+            docker login -uadmin -p$harborAdminPw $imgRepo 2>1 1>/dev/null
+        elif [[ $1 == "repo" ]]; then
+            curl -sf $pkgRepo/private.repo 2>1 1>/dev/null
+        elif [[ $1 == "ldap" ]]; then
+            ldapsearch -x -H ldap://$ldapDomain:389 -b $ldapBindDN -D "cn=admin,$ldapBindDN" -w $ldapRootPW 2>1 1>/dev/null
+        fi
+        if [[ $? -eq 0 ]]; then
+            up=1
+            break
+        fi
+        sleep 3
+    done
+    echo $up
+}
+
+
+function get_master_ips_string
+{
+    # return a string, not an array, but it's ok for for-loop
+    python3 -c "import yaml; all=yaml.safe_load(open('$inventoryPath/$1/hosts.yml'))['all']; print(' '.join([all['hosts'][host]['ip'] for host in all['hosts'] if host in all['children']['kube-master']['hosts']]))"
 }

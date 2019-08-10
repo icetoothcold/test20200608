@@ -1,0 +1,44 @@
+# from https://github.com/dexidp/dex/blob/master/examples/config-ldap.ldif
+
+dn: ou=People,dc=local,dc=ldap,dc=io
+objectClass: organizationalUnit
+ou: People
+
+dn: cn=jane,ou=People,dc=local,dc=ldap,dc=io
+changetype: add
+objectClass: person
+objectClass: inetOrgPerson
+sn: doe
+cn: jane
+mail: janedoe@example.com
+uid: jane
+userpassword: foo
+
+dn: cn=john,ou=People,dc=local,dc=ldap,dc=io
+changetype: add
+objectClass: person
+objectClass: inetOrgPerson
+sn: doe
+cn: john
+mail: johndoe@example.com
+uid: john
+userpassword: bar
+
+# Group definitions.
+
+dn: ou=Groups,dc=local,dc=ldap,dc=io
+objectClass: organizationalUnit
+ou: Groups
+
+dn: cn=devs,ou=Groups,dc=local,dc=ldap,dc=io
+changetype: add
+objectClass: groupOfNames
+cn: admins
+member: cn=john,ou=People,dc=local,dc=ldap,dc=io
+member: cn=jane,ou=People,dc=local,dc=ldap,dc=io
+
+dn: cn=ops,ou=Groups,dc=local,dc=ldap,dc=io
+changetype: add
+objectClass: groupOfNames
+cn: developers
+member: cn=jane,ou=People,dc=local,dc=ldap,dc=io

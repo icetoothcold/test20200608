@@ -1,6 +1,7 @@
 project
 =======
 kubespray
+kube-oidc: https://github.com/ObjectifLibre/kube-oidc
 
 
 download

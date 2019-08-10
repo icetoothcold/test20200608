@@ -6,3 +6,5 @@ keepalived-vip/keepalived
 
 clusters/*
 !clusters/cluster.yml.example
+
+rpms_and_files

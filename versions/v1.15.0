@@ -1,3 +1,4 @@
+corednsVersion: "1.6.0"
 crictlVersion: "v1.15.0"
 etcdVersion: "v3.3.10"
 cniVersion: "v0.8.1"

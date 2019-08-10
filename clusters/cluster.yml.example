@@ -18,3 +18,14 @@ virtual_router_id: YOUR_VIRTUAL_ROUTER_ID
 # NOTE: use '"' to enclose nodes IPs which to hold VIP
 # e.g. all_node_ips: "IP1 IP2 IP3", masters IPs will be used if not set
 all_vip_listeners:
+
+
+#
+# kube reserved
+#
+# like 100m
+kube_master_cpu_reserved:
+kube_cpu_reserved:
+# like 200M
+kube_master_memory_reserved: ""
+kube_memory_reserved: ""

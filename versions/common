@@ -1,3 +1,5 @@
 imageArch: "amd64"
 ansibleSystem: "linux"
 ingressNginxControllerImageTag: "0.25.0"
+dexTag: "v2.15.0"
+loginAppTag: "2.7.0"

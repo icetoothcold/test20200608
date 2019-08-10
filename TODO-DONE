@@ -1,0 +1,47 @@
+# TODO
+* onecache build with health check inside
+* multiple k8s version support
+* k8s upgrade
+* HA
+  - harbor
+  - chartmuseum
+  - pypi
+  - yum and file download
+  - ldap
+* harbor gc
+* bird utils
+  - for node outside of the cluster, support to communicate with pods/services in cluster
+* ldap integration
+  - config oidc in kubespray/inventory/<cluster>/group_vars/k8s-cluster/k8s-cluster.yml
+  - should work with RBAC
+* use OPA
+* use Prometheus
+* cert manager, clusters and infra should use cert to authN
+* add other plugins, such as etcd to coredns
+
+
+# DONE
+repos:
+  - yum
+  - pypi
+  - harbor
+    - k8s v1.15.0
+  - chartmuseum
+  - file download server
+ssh key authorize
+docker service startpost:
+  - compose down harbor and up again, with checking if any Exited
+  - restart repo, with checking unhealthy
+  - restart chartmuseum
+k8s cluster deployed with:
+  - helm
+post deploy:
+  - ingress/traefik
+  - keepalived-vip
+clusters info
+  - all clusters info are stored in clusters folder
+coredns:
+  - nodeSelector, add kv to match master
+  - mount master /etc/hosts 
+  - use hosts plugin
+  - nodelocaldns: forward to coredns service IP in "." zone

@@ -1,6 +1,6 @@
-skipFirstN=0  # note: set -1 to skip all tasks to check taskId
+skipFirstN=0    # set -1 will skip all tasks to check taskId
 skipLastFrom=0
-notSkip=()    # note: work with skipFirstN=-1
+notSkip=()      # can work with skipFirstN=-1
 
 
 rootPath="$(cd `dirname $0`; cd .. ; pwd)"
@@ -37,7 +37,7 @@ fi
 
 echo_task "add infra domain into /etc/hosts"
 if [[ $skipped -ne 1 ]]; then
-    for i in "$pkgRepoHost" "$imgRepo" "$chartRepoHost" ; do
+    for i in "$pkgRepoHost" "$imgRepo" "$chartRepoHost" "$ldapDomain"; do
         grep -q $i /etc/hosts
         if [[ $? -ne 0 ]]; then
             echo "$infraIP  $i" >> /etc/hosts
@@ -103,10 +103,10 @@ fi
 echo_task "start local repo"
 if [[ $skipped -ne 1 ]]; then
     bash $scriptPath/start_repo.sh
-    for i in {5..1}; do
-	echo "Wait $i second for local repo up..."
-	sleep 1
-    done
+    if [[ `verify_repo_up "repo"` -ne 1 ]]; then
+	    echo "After 1 min, local repo up detect failed..."
+	    exit 1
+    fi
 fi
 
 echo_task "backup current yum repos"
@@ -144,19 +144,9 @@ if [[ $skipped -ne 1 ]]; then
     ./install.sh
     rm -f harbor.v1.8.1.tar.gz
     popd
-    up=0
-    for i in {1..20}; do
-	docker login -uadmin -p$harborAdminPw $imgRepo
-	if [[ $? -eq 0 ]]; then
-	    up=1
-	    break
-	fi
-	echo "Failed to login harbor, wait 3 second to verify again..."
-	sleep 3
-    done
-    if [[ $up -eq 0 ]]; then
+    if [[ `verify_repo_up "harbor"` -ne 1 ]]; then
         echo "Failed to login harbor after 1 min..."
-	exit 1
+        exit 1
     fi
 fi
 
@@ -212,10 +202,10 @@ set -x
     systemctl daemon-reload
     systemctl restart docker
 set +x
-    for i in {5..1}; do
-	    echo "Wait $i second for local repo up..."
-        sleep 1
-    done
+    if [[ `verify_repo_up "repo"` -ne 1 ]]; then
+	    echo "After 1 min, local repo up detect failed..."
+	    exit 1
+    fi
 fi
 
 echo_task "install helm push plugin"
@@ -227,6 +217,25 @@ if [[ $skipped -ne 1 ]]; then
     rm -f $rootPath/helm-push.tar
 fi
 
+echo_task "start ldap"
+if [[ $skipped -ne 1 ]]; then
+    bash $scriptPath/start_ldap.sh
+    if [[ `verify_repo_up "ldap"` -ne 1 ]]; then
+        echo "After 1 min, local ldap up detect failed..."
+        exit 1
+    fi
+fi
+
+echo_task "install openldap-clients"
+if [[ $skipped -ne 1 ]]; then
+    yum install -y openldap-clients
+fi
+
+echo_task "add tests users into ldap"
+if [[ $skipped -ne 1 ]]; then
+    ldapadd -x -H ldap://$ldapDomain:389 -D "cn=admin,$ldapBindDN" -w $ldapRootPW -f $rootPath/tests/dex-example-config-ldap.ldif
+fi
+
 #echo_task ""
 #if [[ $skipped -ne 1 ]]; then
 #fi
@@ -235,4 +244,5 @@ echo -e "\n\nAll tasks done!"
 if [[ $skipFirstN -eq 0 && $skipLastFrom -eq 0 ]]; then
     echo "Spend seconds: $((`date +%s`-startTime))"
 fi
-echo "Next to run $scriptPath/pre_deploy.sh"
+echo "Next, ensure your cluster file is under $clusterPath, then run:"
+echo -e "\t$scriptPath/pre_deploy_stage_1.sh <YOUR_CLUSTER_NAME>"

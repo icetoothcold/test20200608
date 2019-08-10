@@ -6,3 +6,8 @@ harborAdminPw: "Harbor12345"
 chartRepo: "http://local.chart.io:8070"
 # with multitenancy support
 localInfraChartRepo: "local/infra"
+# ldap
+ldapOrgName: "test"
+ldapDomain: "local.ldap.io"
+ldapBindDN: "dc=local,dc=ldap,dc=io"
+ldapRootPW: "ldapAdmin"

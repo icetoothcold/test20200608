@@ -1,3 +1,5 @@
+rootPath="$(cd `dirname $0`; cd ..; pwd)"
+source $rootPath/scripts/utils.sh
 dataPath=$rootPath/chartmuseum_data
 if [[ ! -d $dataPath ]]; then
     mkdir $rootPath/chartmuseum_data

@@ -4,10 +4,12 @@ kube_pods_subnet: 10.233.64.0/18
 kube_network_node_prefix: 24
 kube_proxy_mode: ipvs
 cluster_name: cluster.local
+
 dns_mode: coredns
 enable_coredns_k8s_external: false
 coredns_k8s_external_zone: k8s_external.local
 enable_coredns_k8s_endpoint_pod_names: false
+deploy_netchecker: false
 container_manager: docker
 ## Settings for containerized control plane (etcd/kubelet/secrets)
 etcd_deployment_type: docker
@@ -57,6 +59,7 @@ etcd_image_repo: "{{ imageRepo }}/coreos/etcd"
 flannel_image_repo: "{{ imageRepo }}/coreos/flannel"
 flannel_cni_image_repo: "{{ imageRepo }}/coreos/flannel-cni"
 coredns_image_repo: "{{ imageRepo }}/coredns/coredns"
+coredns_image_tag: "{{ corednsVersion }}"
 kubeadm_download_url: "{{ pkgRepo }}/kubernetes-release/release/{{ kubeadmVersion }}/bin/linux/{{ imageArch }}/kubeadm"
 hyperkube_download_url: "{{ pkgRepo }}/kubernetes-release/release/{{ kubeVersion }}/bin/linux/{{ imageArch }}/hyperkube"
 etcd_download_url: "{{ pkgRepo }}/coreos/etcd/releases/download/{{ etcdVersion }}/etcd-{{ etcdVersion }}-linux-{{ imageArch }}.tar.gz"
@@ -73,3 +76,15 @@ local_volume_provisioner_image_repo: "{{ imageRepo }}/external_storage/local-vol
 local_volume_provisioner_image_tag: "{{ localVolumeProvisionerImageTag }}"
 local_path_provisioner_image_repo: "{{ imageRepo }}/rancher/local-path-provisioner"
 local_path_provisioner_image_tag: "{{ localPathProvisionerImageTag }}"
+
+kube_basic_auth: true
+kube_token_auth: true
+kube_oidc_auth: true
+kube_oidc_url: "https://dex.{{ clusterName }}.io/dex"
+kube_oidc_client_id: loginapp
+kube_oidc_ca_file: "/etc/ssl/dex/ca.pem"
+kube_oidc_username_claim: name
+kube_oidc_groups_claim: groups
+cluster_api_vip: "{{ vip }}"
+kube_oidc_dex_host: "dex.{{ clusterName }}.io"
+kube_oidc_loginapp_host: "loginapp.{{ clusterName }}.io"

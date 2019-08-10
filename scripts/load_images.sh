@@ -1,4 +1,13 @@
+if [[ ${0##*/} == "load_images.sh" ]]; then
+    rootPath="$(cd `dirname $0`; cd ..; pwd)"
+    source $rootPath/scripts/utils.sh
+fi
 tmpFile=$rootPath/tmp.`date +%s`
+
+if [[ `verify_repo_up "harbor"` -ne 1 ]]; then
+    echo "After 1 min, harbor up detect failed..."
+    exit 1
+fi
 
 docker login -uadmin -p$harborAdminPw $imgRepo
 
@@ -14,7 +23,7 @@ for i in `ls $rootPath/images/*.tar`; do
             continue
         fi
     fi
-    docker load < $rootPath/images/$i > $tmpFile
+    docker load < $i > $tmpFile
     if [[ $? -ne 0 ]]; then
 	echo "Failed to load image $rootPath/images/$i"
 	exit 1

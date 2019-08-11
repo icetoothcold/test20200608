@@ -12,7 +12,6 @@
 * bird utils
   - for node outside of the cluster, support to communicate with pods/services in cluster
 * ldap integration
-  - config oidc in kubespray/inventory/<cluster>/group_vars/k8s-cluster/k8s-cluster.yml
   - should work with RBAC
 * use OPA
 * use Prometheus
@@ -38,6 +37,7 @@ k8s cluster deployed with:
 post deploy:
   - ingress/traefik
   - keepalived-vip
+  - dex, loginapp
 clusters info
   - all clusters info are stored in clusters folder
 coredns:

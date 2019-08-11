@@ -25,7 +25,7 @@ done
 
 echo "insert repos IP to /etc/hosts"
 for ip in ${hostIPs[@]}; do
-    for repo in $imgRepo $pkgRepoHost $chartRepoHost; do
+    for repo in $imgRepo $pkgRepoHost $chartRepoHost $ldapDomain; do
         res=`ssh root@$ip "grep -c \"$infraIP.*$repo\" /etc/hosts"`
         if [[ $res -ne 1 ]]; then
             ssh root@$ip "echo $infraIP $repo >> /etc/hosts"

@@ -86,7 +86,7 @@ dex:
       tlsCert: /etc/dex/tls/tls.crt
       tlsKey: /etc/dex/tls/tls.key
     logger:
-      level: "debug"
+      level: "info"
       format: json
 
     connectors:
@@ -243,6 +243,9 @@ loginapp:
       issuer:
         root_ca: "/etc/ssl/ca.pem"
         url: "https://dex.{{ clusterName }}.io/dex"
+    log:
+      level: "warning"
+      format: json
 
   # Issuer certificate authority
   issuerCA: ""

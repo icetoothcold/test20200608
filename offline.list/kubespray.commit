@@ -1,0 +1,5 @@
+92bfcf04677d79170f8e44a470b6c0ed5f47431c
+Author: w33dw0r7d <w33dw0r7d@gmail.com>
+Date:   Wed Jul 31 21:26:15 2019 +0300
+
+    Add CoreDNS endpoint_pod_names option (#5012)

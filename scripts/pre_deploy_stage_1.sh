@@ -69,25 +69,25 @@ cat k8s-cluster.yml.tmp$ts >> inventory/$clusterName/group_vars/k8s-cluster/k8s-
 
 if [[ `grep -c '^downloads:' roles/download/defaults/main.yml` -eq 1 ]]; then
     cat roles/download/defaults/main.yml $templatePath/download_main.yml >> download_main.yml.tmp$ts
-    cp download_main.yml.tmp$ts roles/download/defaults/main.yml
+    diff_and_cp download_main.yml.tmp$ts roles/download/defaults/main.yml
 fi
 
 rm -f data.tmp$ts docker.yml.tmp$ts k8s-cluster.yml.tmp$ts download_main.yml.tmp$ts
 
 # enable helm
-cp $templatePath/addons.yml inventory/$clusterName/group_vars/k8s-cluster/addons.yml
+diff_and_cp $templatePath/addons.yml inventory/$clusterName/group_vars/k8s-cluster/addons.yml
 # yum repos
-cp $templatePath/container-engine_containerd_tasks_containerd_repo.yml roles/container-engine/containerd/tasks/containerd_repo.yml
-cp $templatePath/container-engine_containerd_templates_rh_containerd.repo.j2 roles/container-engine/containerd/templates/rh_containerd.repo.j2
-cp $templatePath/container-engine_docker_tasks_main.yml roles/container-engine/docker/tasks/main.yml
-cp $templatePath/container-engine_docker_templates_rh_docker.repo.j2 roles/container-engine/docker/templates/rh_docker.repo.j2
+diff_and_cp $templatePath/container-engine_containerd_tasks_containerd_repo.yml roles/container-engine/containerd/tasks/containerd_repo.yml
+diff_and_cp $templatePath/container-engine_containerd_templates_rh_containerd.repo.j2 roles/container-engine/containerd/templates/rh_containerd.repo.j2
+diff_and_cp $templatePath/container-engine_docker_tasks_main.yml roles/container-engine/docker/tasks/main.yml
+diff_and_cp $templatePath/container-engine_docker_templates_rh_docker.repo.j2 roles/container-engine/docker/templates/rh_docker.repo.j2
 # kube-oidc
-cp $templatePath/kubeadm-config.v1beta1.yaml.j2 roles/kubernetes/master/templates/kubeadm-config.v1beta1.yaml.j2
-cp $templatePath/kubeadm-config.v1beta2.yaml.j2 roles/kubernetes/master/templates/kubeadm-config.v1beta2.yaml.j2
+diff_and_cp $templatePath/kubeadm-config.v1beta1.yaml.j2 roles/kubernetes/master/templates/kubeadm-config.v1beta1.yaml.j2
+diff_and_cp $templatePath/kubeadm-config.v1beta2.yaml.j2 roles/kubernetes/master/templates/kubeadm-config.v1beta2.yaml.j2
 # coredns, nodelocaldns
-cp $templatePath/coredns-config.yml.j2 roles/kubernetes-apps/ansible/templates/coredns-config.yml.j2
-cp $templatePath/nodelocaldns-config.yml.j2 roles/kubernetes-apps/ansible/templates/nodelocaldns-config.yml.j2
-cp $templatePath/coredns-deployment.yml.j2 roles/kubernetes-apps/ansible/templates/coredns-deployment.yml.j2
+diff_and_cp $templatePath/coredns-config.yml.j2 roles/kubernetes-apps/ansible/templates/coredns-config.yml.j2
+diff_and_cp $templatePath/nodelocaldns-config.yml.j2 roles/kubernetes-apps/ansible/templates/nodelocaldns-config.yml.j2
+diff_and_cp $templatePath/coredns-deployment.yml.j2 roles/kubernetes-apps/ansible/templates/coredns-deployment.yml.j2
 
 
 popd

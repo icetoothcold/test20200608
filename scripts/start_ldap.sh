@@ -19,4 +19,5 @@ docker run --name ldap -d \
   --env LDAP_ADMIN_PASSWORD=$ldapRootPW \
   -v $configPath:/etc/ldap/slapd.d \
   -v $dataPath:/var/lib/ldap \
+  --restart 'always' \
   $imgRepo/osixia/openldap:1.2.4

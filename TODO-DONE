@@ -8,7 +8,9 @@
   - pypi
   - yum and file download
   - ldap
-* harbor gc
+* harbor
+  - gc
+  - ldap
 * bird utils
   - for node outside of the cluster, support to communicate with pods/services in cluster
 * ldap integration
@@ -17,6 +19,7 @@
 * use Prometheus
 * cert manager, clusters and infra should use cert to authN
 * add other plugins, such as etcd to coredns
+* multi volumes support for os, docker, kubelet
 
 
 # DONE

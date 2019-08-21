@@ -188,3 +188,12 @@ function get_master_ips_string
     # return a string, not an array, but it's ok for for-loop
     python3 -c "import yaml; all=yaml.safe_load(open('$inventoryPath/$1/hosts.yml'))['all']; print(' '.join([all['hosts'][host]['ip'] for host in all['hosts'] if host in all['children']['kube-master']['hosts']]))"
 }
+
+
+function diff_and_cp
+{
+    diff -q $1 $2
+    if [[ $? -ne 0 ]]; then
+        cp $1 $2
+    fi
+}

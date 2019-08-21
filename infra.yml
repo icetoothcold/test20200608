@@ -1,7 +1,7 @@
+myIP: "192.168.100.153"
 imageRepo: "local.harbor.io"
 pkgRepo: "http://local.repo.io:8080"
 pypiPort: 8090
-myIP: "192.168.100.153"
 harborAdminPw: "Harbor12345"
 chartRepo: "http://local.chart.io:8070"
 # with multitenancy support
@@ -11,3 +11,14 @@ ldapOrgName: "test"
 ldapDomain: "local.ldap.io"
 ldapBindDN: "dc=local,dc=ldap,dc=io"
 ldapRootPW: "ldapAdmin"
+# HA
+peerIP: "192.168.100.213"
+peerRootPW: "zea345lot"
+# active-active ha
+imageRepoVIP: "192.168.100.151"
+# active-active ha
+pkgRepoVIP: "192.168.100.151"
+# active-active ha
+chartRepoVIP: "192.168.100.151"
+# active-active ha
+ldapVIP: "192.168.100.151"

@@ -25,12 +25,22 @@ done
 
 echo "insert repos IP to /etc/hosts"
 for ip in ${hostIPs[@]}; do
-    for repo in $imgRepo $pkgRepoHost $chartRepoHost $ldapDomain; do
-        res=`ssh root@$ip "grep -c \"$infraIP.*$repo\" /etc/hosts"`
-        if [[ $res -ne 1 ]]; then
-            ssh root@$ip "echo $infraIP $repo >> /etc/hosts"
-        fi
-    done
+    res=`ssh root@$ip "grep -c \"$imageRepoVIP.*$imgRepo\" /etc/hosts"`
+    if [[ $res -ne 1 ]]; then
+        ssh root@$ip "echo $imageRepoVIP $imgRepo >> /etc/hosts"
+    fi
+    res=`ssh root@$ip "grep -c \"$pkgRepoVIP.*$pkgRepoHost\" /etc/hosts"`
+    if [[ $res -ne 1 ]]; then
+        ssh root@$ip "echo $pkgRepoVIP $pkgRepoHost >> /etc/hosts"
+    fi
+    res=`ssh root@$ip "grep -c \"$chartRepoVIP.*$chartRepoHost\" /etc/hosts"`
+    if [[ $res -ne 1 ]]; then
+        ssh root@$ip "echo $chartRepoVIP $chartRepoHost >> /etc/hosts"
+    fi
+    res=`ssh root@$ip "grep -c \"$ldapVIP.*$ldapDomain\" /etc/hosts"`
+    if [[ $res -ne 1 ]]; then
+        ssh root@$ip "echo $ldapVIP $ldapDomain >> /etc/hosts"
+    fi
 done
 
 echo "backup host repo, and install private repo"

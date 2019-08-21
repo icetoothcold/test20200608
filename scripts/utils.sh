@@ -7,14 +7,19 @@ inventoryPath=$rootPath/kubespray/inventory
 clusterPath=$rootPath/clusters
 
 
-infraIP=`cat $rootPath/infra.yml | awk -F'"' '/myIP/{print $2}'`
-imgRepo=`cat $rootPath/infra.yml | awk -F'"' '/imageRepo/{print $2}'`
-pkgRepo=`cat $rootPath/infra.yml | awk -F'"' '/pkgRepo/{print $2}'`
+myIP=`cat $rootPath/infra.yml | awk -F'"' '/myIP/{print $2}'`
+peerIP=`cat $rootPath/infra.yml | awk -F'"' '/peerIP/{print $2}'`
+peerRootPW=`cat $rootPath/infra.yml | awk -F'"' '/peerRootPW/{print $2}'`
+imgRepo=`cat $rootPath/infra.yml | awk -F'"' '/imageRepo:/{print $2}'`
+imageRepoVIP=`cat $rootPath/infra.yml | awk -F'"' '/imageRepoVIP/{print $2}'`
+pkgRepo=`cat $rootPath/infra.yml | awk -F'"' '/pkgRepo:/{print $2}'`
 pkgRepoHost=`echo $pkgRepo | cut -d '/' -f 3 | cut -d ':' -f 1`
 pkgRepoPort=`echo $pkgRepo | cut -d ':' -f 3`
-chartRepo=`cat $rootPath/infra.yml | awk -F'"' '/chartRepo/{print $2}'`
+pkgRepoVIP=`cat $rootPath/infra.yml | awk -F'"' '/pkgRepoVIP/{print $2}'`
+chartRepo=`cat $rootPath/infra.yml | awk -F'"' '/chartRepo:/{print $2}'`
 chartRepoHost=`echo $chartRepo | cut -d '/' -f 3 | cut -d ':' -f 1`
 chartRepoPort=`echo $chartRepo | cut -d ':' -f 3`
+chartRepoVIP=`cat $rootPath/infra.yml | awk -F'"' '/chartRepoVIP/{print $2}'`
 harborAdminPw=`cat $rootPath/infra.yml | awk -F'"' '/harborAdminPw/{print $2}'`
 localInfraChartRepo=`cat $rootPath/infra.yml | awk -F'"' '/localInfraChartRepo/{print $2}'`
 pypiPort=`cat $rootPath/infra.yml | awk '/pypiPort/{print $2}'`
@@ -22,6 +27,7 @@ ldapOrgName=`cat $rootPath/infra.yml | awk -F'"' '/ldapOrgName/{print $2}'`
 ldapDomain=`cat $rootPath/infra.yml | awk -F'"' '/ldapDomain/{print $2}'`
 ldapRootPW=`cat $rootPath/infra.yml | awk -F'"' '/ldapRootPW/{print $2}'`
 ldapBindDN=`cat $rootPath/infra.yml | awk -F'"' '/ldapBindDN/{print $2}'`
+ldapVIP=`cat $rootPath/infra.yml | awk -F'"' '/ldapVIP/{print $2}'`
 
 
 tasksNum=`grep -c '^echo_task ' $0`

@@ -13,13 +13,11 @@ fi
 
 startTime=`date +%s`
 
-if [[ -z $infraIP ]]; then
+if [[ -z $myIP ]]; then
     echo "IP check failed..."
     exit
 fi
 echo "IP check pass..."
-
-source $scriptPath/utils.sh
 
 echo_task "express tar packages"
 if [[ $skipped -ne 1 ]]; then
@@ -40,7 +38,7 @@ if [[ $skipped -ne 1 ]]; then
     for i in "$pkgRepoHost" "$imgRepo" "$chartRepoHost" "$ldapDomain"; do
         grep -q $i /etc/hosts
         if [[ $? -ne 0 ]]; then
-            echo "$infraIP  $i" >> /etc/hosts
+            echo "$myIP  $i" >> /etc/hosts
         fi
     done
 fi
@@ -217,6 +215,11 @@ if [[ $skipped -ne 1 ]]; then
     rm -f $rootPath/helm-push.tar
 fi
 
+echo_task "install openldap-clients"
+if [[ $skipped -ne 1 ]]; then
+    yum install -y openldap-clients
+fi
+
 echo_task "start ldap"
 if [[ $skipped -ne 1 ]]; then
     bash $scriptPath/start_ldap.sh
@@ -224,11 +227,6 @@ if [[ $skipped -ne 1 ]]; then
         echo "After 1 min, local ldap up detect failed..."
         exit 1
     fi
-fi
-
-echo_task "install openldap-clients"
-if [[ $skipped -ne 1 ]]; then
-    yum install -y openldap-clients
 fi
 
 echo_task "add tests users into ldap"

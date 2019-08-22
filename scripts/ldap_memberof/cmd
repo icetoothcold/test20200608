@@ -1,0 +1,6 @@
+# docker exec -it ldap "/bin/bash" "/ldap_memberof/cmd"
+
+ldapadd -Q -Y EXTERNAL -H ldapi:/// -f ldap_memberof/memberOfModule.ldif
+ldapadd -Q -Y EXTERNAL -H ldapi:/// -f ldap_memberof/memberOfConfig.ldif
+ldapadd -Q -Y EXTERNAL -H ldapi:/// -f ldap_memberof/refintModule.ldif
+ldapadd -Q -Y EXTERNAL -H ldapi:/// -f ldap_memberof/refintConfig.ldif

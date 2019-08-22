@@ -3,6 +3,7 @@ imageRepo: "local.harbor.io"
 pkgRepo: "http://local.repo.io:8080"
 pypiPort: 8090
 harborAdminPw: "Harbor12345"
+harborGcCron: "0 0 */2 * * *"
 chartRepo: "http://local.chart.io:8070"
 # with multitenancy support
 localInfraChartRepo: "local/infra"

@@ -21,6 +21,7 @@ chartRepoHost=`echo $chartRepo | cut -d '/' -f 3 | cut -d ':' -f 1`
 chartRepoPort=`echo $chartRepo | cut -d ':' -f 3`
 chartRepoVIP=`cat $rootPath/infra.yml | awk -F'"' '/chartRepoVIP/{print $2}'`
 harborAdminPw=`cat $rootPath/infra.yml | awk -F'"' '/harborAdminPw/{print $2}'`
+harborGcCron=`cat $rootPath/infra.yml | awk -F'"' '/harborGcCron/{print $2}'`
 localInfraChartRepo=`cat $rootPath/infra.yml | awk -F'"' '/localInfraChartRepo/{print $2}'`
 pypiPort=`cat $rootPath/infra.yml | awk '/pypiPort/{print $2}'`
 ldapOrgName=`cat $rootPath/infra.yml | awk -F'"' '/ldapOrgName/{print $2}'`

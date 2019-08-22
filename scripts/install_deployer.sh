@@ -229,6 +229,23 @@ if [[ $skipped -ne 1 ]]; then
     fi
 fi
 
+echo_task "enable ldap memberof"
+if [[ $skipped -ne 1 ]]; then
+    docker cp $scriptPath/ldap_memberof ldap:.
+    docker exec -it ldap "/bin/bash" "/ldap_memberof/cmd"
+fi
+
+echo_task "set harbor auth_mode to ldap"
+if [[ $skipped -ne 1 ]]; then
+    curl -X PUT -u "admin:$harborAdminPw" -H "Content-Type: application/json" -ki http://$imgRepo/api/configurations \
+        -d '{"auth_mode":"ldap_auth","ldap_url":"ldap://'$ldapDomain':389","ldap_search_dn":"cn=admin,'$ldapBindDN'","ldap_search_password":"'$ldapRootPW'","ldap_base_dn":"ou=People,'$ldapBindDN'","ldap_filter":"(objectClass=person)","ldap_uid":"cn","ldap_scope":"2","ldap_timeout":"5","ldap_verify_cert":"false","ldap_group_base_dn":"ou=Groups,'$ldapBindDN'","ldap_group_admin_dn":"ou=Groups,'$ldapBindDN'","ldap_group_search_filter":"objectClass=groupOfNames","ldap_group_attribute_name":"cn","ldap_group_search_scope":"2","ldap_group_membership_attribute":"memberof","self_registration":"false","project_creation_restriction":"adminonly"}'
+fi
+
+echo_task "set harbor gc schedule"
+if [[ $skipped -ne 1 ]]; then
+    curl -X POST -u "admin:$harborAdminPw" -H "Content-Type: application/json" -ki http://$imgRepo/api/system/gc/schedule -d "{\"schedule\":{\"type\":\"Custom\",\"cron\":\"$harborGcCron\"}}"
+fi
+
 echo_task "add tests users into ldap"
 if [[ $skipped -ne 1 ]]; then
     ldapadd -x -H ldap://$ldapDomain:389 -D "cn=admin,$ldapBindDN" -w $ldapRootPW -f $rootPath/tests/dex-example-config-ldap.ldif

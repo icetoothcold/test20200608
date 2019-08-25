@@ -4,7 +4,7 @@
 
 image:
   repository: {{ imageRepo }}/library/keepalived-vip
-  tag: v0.1
+  tag: v0.2
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
@@ -35,6 +35,6 @@ daemonset:
   env:
     interface: "{{ vip_interface }}"
     virtual_router_id: "{{ virtual_router_id }}"
-    vip: "{{ vip }}"
+    vips: "{{ vips }}"
     advert_interval: "2"
     all_node_ips: "{{ all_vip_listeners }}"

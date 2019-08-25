@@ -12,7 +12,7 @@ force: false
 #
 # cluster keepalived-vip setting
 #
-vip: YOUR_CLUSTER_VIP
+vips: "YOUR_CLUSTER_VIP1 YOUR_CLUSTER_VIP2 ..."
 vip_interface: YOUR_VIP_INTERFACE
 virtual_router_id: YOUR_VIRTUAL_ROUTER_ID
 # NOTE: use '"' to enclose nodes IPs which to hold VIP

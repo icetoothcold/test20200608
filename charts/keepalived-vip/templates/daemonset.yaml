@@ -21,8 +21,8 @@ spec:
               value: "{{ .Values.daemonset.env.interface }}"
             - name: VRID
               value: "{{ .Values.daemonset.env.virtual_router_id }}"
-            - name: VIP
-              value: "{{ .Values.daemonset.env.vip }}"
+            - name: VIPS
+              value: "{{ .Values.daemonset.env.vips }}"
             - name: AD_INT
               value: "{{ .Values.daemonset.env.advert_interval }}"
             - name: ALL_IPS

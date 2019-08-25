@@ -71,7 +71,6 @@ echo "clusterName: $clusterName" >> data.tmp$ts
 echo -e "\n\ntemplate render with data:"
 cat data.tmp$ts
 echo -e "\n"
-templatePath=$rootPath/templates
 jinja2 $templatePath/docker.yml data.tmp$ts --format=yaml >> docker.yml.tmp$ts
 jinja2 $templatePath/k8s-cluster.yml data.tmp$ts --format=yaml >> k8s-cluster.yml.tmp$ts
 cat docker.yml.tmp$ts >> inventory/$clusterName/group_vars/all/docker.yml

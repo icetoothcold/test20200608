@@ -2,9 +2,12 @@ myIP: "192.168.100.153"
 imageRepo: "local.harbor.io"
 pkgRepo: "http://local.repo.io:8080"
 pypiPort: 8090
+chartRepo: "http://local.chart.io:8070"
+# harbor
 harborAdminPw: "Harbor12345"
 harborGcCron: "0 0 */2 * * *"
-chartRepo: "http://local.chart.io:8070"
+harborShareVolume: "/nfsdata"
+harborHABackendPort: 8081
 # with multitenancy support
 localInfraChartRepo: "local/infra"
 # ldap
@@ -12,9 +15,14 @@ ldapOrgName: "test"
 ldapDomain: "local.ldap.io"
 ldapBindDN: "dc=local,dc=ldap,dc=io"
 ldapRootPW: "ldapAdmin"
+ldapHABackendPort: 1389
 # HA
 peerIP: "192.168.100.213"
 peerRootPW: "zea345lot"
+# keepalived
+vipInterface: "eth0"
+keepalivedAdvertIntv: "2"
+keepalivedVRID: "123"
 # active-active ha
 imageRepoVIP: "192.168.100.151"
 # active-active ha

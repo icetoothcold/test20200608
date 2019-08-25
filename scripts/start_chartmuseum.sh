@@ -19,4 +19,4 @@ docker run -d \
   --name chartmuseum \
   --restart 'always' \
   -u 1000:1000 \
-  chartmuseum/chartmuseum:latest
+  $imgRepo/chartmuseum/chartmuseum:latest

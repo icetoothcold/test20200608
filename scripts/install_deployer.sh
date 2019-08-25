@@ -92,10 +92,8 @@ fi
 
 echo_task "load onecache image"
 if [[ $skipped -ne 1 ]]; then
-    pushd $imgPath
-    docker load < onecache.tar
-    rm -f onecache.tar
-    popd
+    docker load < $imgPath/onecache.tar
+    docker tag onecache $imgRepo/library/onecache
 fi
 
 echo_task "start local repo"
@@ -123,8 +121,8 @@ fi
 echo_task "start chartmuseum"
 if [[ $skipped -ne 1 ]]; then
     docker load < $imgPath/chartmuseum.latest.tar
+    docker tag chartmuseum/chartmuseum $imgRepo/chartmuseum/chartmuseum
     bash $scriptPath/start_chartmuseum.sh
-    rm $imgPath/chartmuseum.latest.tar
 fi
 
 echo_task "yum install docker-compose"
@@ -138,7 +136,7 @@ if [[ $skipped -ne 1 ]]; then
     tar xf $rootPath/harbor-offline-installer-v1.8.1.tgz -C $rootPath
     rm -f $rootPath/harbor-offline-installer-v1.8.1.tgz
     pushd $rootPath/harbor
-    sed -i "s/hostname: reg.mydomain.com/hostname: $imgRepo/" harbor.yml
+    sed -i -e "s/^hostname:.*/hostname: $imgRepo/" -e "s/^harbor_admin_password:.*/harbor_admin_password: $harborAdminPw/" harbor.yml
     ./install.sh
     rm -f harbor.v1.8.1.tar.gz
     popd
@@ -259,5 +257,8 @@ echo -e "\n\nAll tasks done!"
 if [[ $skipFirstN -eq 0 && $skipLastFrom -eq 0 ]]; then
     echo "Spend seconds: $((`date +%s`-startTime))"
 fi
-echo "Next, ensure your cluster file is under $clusterPath, then run:"
+echo "Next:"
+echo -e "\t(optional) to deploy a HA peer run:"
+echo -e "\t    $scriptPath/install_deployer_peer.sh\n"
+echo -e "\tEnsure your cluster file is under $clusterPath, then run:"
 echo -e "\t$scriptPath/pre_deploy_stage_1.sh <YOUR_CLUSTER_NAME>"

@@ -14,4 +14,4 @@ docker run -d --name myrepo \
     --health-timeout=2s \
     --health-retries=2 \
     --health-start-period=3s \
-    onecache
+    $imgRepo/library/onecache

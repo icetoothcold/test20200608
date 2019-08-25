@@ -1,0 +1,26 @@
+vrrp_script repo_check {
+  script       "/repo_check.sh"
+  interval 2
+  fall 3
+  rise 3
+}
+
+vrrp_instance VI_1 {
+    state BACKUP
+    interface <INTF>
+    garp_master_delay 3
+    virtual_router_id <VRID>
+    priority 100
+    nopreempt
+    advert_int <AD_INT>
+    virtual_ipaddress {
+<VIP_DEVS>
+    }
+    unicast_src_ip <MY_IP>
+    unicast_peer {
+<PEERS>
+    }
+    track_script {
+        repo_check
+    }
+}

@@ -3,14 +3,9 @@
 * multiple k8s version support
 * k8s upgrade
 * HA
-  - harbor
   - chartmuseum
   - pypi
   - yum and file download
-  - ldap
-* harbor
-  - gc
-  - ldap
 * bird utils
   - for node outside of the cluster, support to communicate with pods/services in cluster
 * ldap integration
@@ -28,8 +23,14 @@ repos:
   - pypi
   - harbor
     - k8s v1.15.0
+    - gc
+    - ldap authN integrated
   - chartmuseum
   - file download server
+HA enabled:
+  - haproxy and keepalived-vip containers on repo nodes
+  - harbor
+  - ldap
 ssh key authorize
 docker service startpost:
   - compose down harbor and up again, with checking if any Exited

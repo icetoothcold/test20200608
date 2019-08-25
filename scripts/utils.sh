@@ -5,11 +5,15 @@ chartPath=$rootPath/charts
 versionPath=$rootPath/versions
 inventoryPath=$rootPath/kubespray/inventory
 clusterPath=$rootPath/clusters
+templatePath=$rootPath/templates
 
 
 myIP=`cat $rootPath/infra.yml | awk -F'"' '/myIP/{print $2}'`
 peerIP=`cat $rootPath/infra.yml | awk -F'"' '/peerIP/{print $2}'`
 peerRootPW=`cat $rootPath/infra.yml | awk -F'"' '/peerRootPW/{print $2}'`
+vipInterface=`cat $rootPath/infra.yml | awk -F'"' '/vipInterface/{print $2}'`
+keepalivedAdvertIntv=`cat $rootPath/infra.yml | awk -F'"' '/keepalivedAdvertIntv/{print $2}'`
+keepalivedVRID=`cat $rootPath/infra.yml | awk -F'"' '/keepalivedVRID/{print $2}'`
 imgRepo=`cat $rootPath/infra.yml | awk -F'"' '/imageRepo:/{print $2}'`
 imageRepoVIP=`cat $rootPath/infra.yml | awk -F'"' '/imageRepoVIP/{print $2}'`
 pkgRepo=`cat $rootPath/infra.yml | awk -F'"' '/pkgRepo:/{print $2}'`
@@ -22,6 +26,8 @@ chartRepoPort=`echo $chartRepo | cut -d ':' -f 3`
 chartRepoVIP=`cat $rootPath/infra.yml | awk -F'"' '/chartRepoVIP/{print $2}'`
 harborAdminPw=`cat $rootPath/infra.yml | awk -F'"' '/harborAdminPw/{print $2}'`
 harborGcCron=`cat $rootPath/infra.yml | awk -F'"' '/harborGcCron/{print $2}'`
+harborShareVolume=`cat $rootPath/infra.yml | awk -F'"' '/harborShareVolume/{print $2}'`
+harborHABackendPort=`cat $rootPath/infra.yml | awk '/harborHABackendPort/{print $2}'`
 localInfraChartRepo=`cat $rootPath/infra.yml | awk -F'"' '/localInfraChartRepo/{print $2}'`
 pypiPort=`cat $rootPath/infra.yml | awk '/pypiPort/{print $2}'`
 ldapOrgName=`cat $rootPath/infra.yml | awk -F'"' '/ldapOrgName/{print $2}'`
@@ -29,6 +35,7 @@ ldapDomain=`cat $rootPath/infra.yml | awk -F'"' '/ldapDomain/{print $2}'`
 ldapRootPW=`cat $rootPath/infra.yml | awk -F'"' '/ldapRootPW/{print $2}'`
 ldapBindDN=`cat $rootPath/infra.yml | awk -F'"' '/ldapBindDN/{print $2}'`
 ldapVIP=`cat $rootPath/infra.yml | awk -F'"' '/ldapVIP/{print $2}'`
+ldapHABackendPort=`cat $rootPath/infra.yml | awk '/ldapHABackendPort/{print $2}'`
 
 
 tasksNum=`grep -c '^echo_task ' $0`
@@ -174,11 +181,19 @@ function verify_repo_up
     up=0
     for i in {1..20}; do
         if [[ $1 == "harbor" ]]; then
-            docker login -uadmin -p$harborAdminPw $imgRepo 2>1 1>/dev/null
+            if [[ -z $2 ]]; then
+                docker login -uadmin -p$harborAdminPw $imgRepo 2>/dev/null 1>/dev/null
+            else
+                curl -sf http://$2/api/health -H  "accept: application/json" | grep 'components' -B 1 | grep -q '"healthy"'
+            fi
         elif [[ $1 == "repo" ]]; then
-            curl -sf $pkgRepo/private.repo 2>1 1>/dev/null
+            curl -sf $pkgRepo/private.repo 2>/dev/null 1>/dev/null
         elif [[ $1 == "ldap" ]]; then
-            ldapsearch -x -H ldap://$ldapDomain:389 -b $ldapBindDN -D "cn=admin,$ldapBindDN" -w $ldapRootPW 2>1 1>/dev/null
+            if [[ -z $2 ]]; then
+                ldapsearch -x -H ldap://$ldapDomain:389 -b $ldapBindDN -D "cn=admin,$ldapBindDN" -w $ldapRootPW 2>/dev/null 1>/dev/null
+            else
+                ldapsearch -x -H ldap://$2 -b $ldapBindDN -D "cn=admin,$ldapBindDN" -w $ldapRootPW 2>/dev/null 1>/dev/null
+            fi
         fi
         if [[ $? -eq 0 ]]; then
             up=1

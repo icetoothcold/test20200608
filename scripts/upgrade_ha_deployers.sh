@@ -28,7 +28,7 @@ fi
 
 echo_task "update insecure-registry and reload docker"
 if [[ $skipped -ne 1 ]]; then
-    sed -i "/ExecStart=/ s/$/ --insecure-registry=$imgRepo:$harborHABackendPort --insecure-registry=$myIP --insecure-registry=$peerIP/" /usr/lib/systemd/system/docker.service
+    sed -i "/ExecStart=/ s/$/ --insecure-registry=$imgRepo --insecure-registry=$myIP --insecure-registry=$peerIP/" /usr/lib/systemd/system/docker.service
     systemctl daemon-reload
     systemctl enable docker
     systemctl restart docker
@@ -36,10 +36,7 @@ fi
 
 echo_task "temporary add VIP"
 if [[ $skipped -ne 1 ]]; then
-    dev=`ip r get 8.8.8.8 | awk '/dev/{print $5}'`
-    for vip in "$pkgRepoVIP" "$chartRepoVIP"; do
-        ip a add dev $dev $vip/32
-    done
+    add_pkg_repo_tmp_vip
 fi
 
 echo_task "re-configure harbor"
@@ -47,12 +44,10 @@ if [[ $skipped -ne 1 ]]; then
     pushd $rootPath/harbor
     docker-compose down
     mv /data/{database,redis,registry,secret} $harborShareVolume
-    sed -i -e "s#/data/registry#$harborShareVolume/registry#" -e "s#/data/redis#$harborShareVolume/redis#" -e "s#/data/database#$harborShareVolume/database#" -e "s#/data/secret#/$harborShareVolume/secret#" -e "s#80:80#$harborHABackendPort:80#" docker-compose.yml
-    sed -i "s#$imgRepo#$imgRepo:$harborHABackendPort#" common/config/core/env
-    sed -i "s#$imgRepo#$imgRepo:$harborHABackendPort#" common/config/registry/config.yml
+    sed -i -e "s#/data/registry#$harborShareVolume/registry#" -e "s#/data/redis#$harborShareVolume/redis#" -e "s#/data/database#$harborShareVolume/database#" -e "s#/data/secret#/$harborShareVolume/secret#" docker-compose.yml
     docker-compose up -d
     popd
-    if [[ `verify_repo_up "harbor" "$myIP:$harborHABackendPort"` -ne 1 ]]; then
+    if [[ `verify_repo_up "harbor" "$myIP"` -ne 1 ]]; then
         echo "Failed to login harbor after 1 min..."
         exit 1
     fi
@@ -109,7 +104,7 @@ fi
 
 echo_task "peer: add insecure-registry and enable docker"
 if [[ $skipped -ne 1 ]]; then
-    ssh root@$peerIP "sed -i '/ExecStart=/ s/$/ --insecure-registry=$imgRepo:$harborHABackendPort --insecure-registry=$imgRepo --insecure-registry=$myIP --insecure-registry=$peerIP/' /usr/lib/systemd/system/docker.service; systemctl daemon-reload; systemctl enable docker; systemctl start docker"
+    ssh root@$peerIP "sed -i '/ExecStart=/ s/$/ --insecure-registry=$imgRepot --insecure-registry=$myIP --insecure-registry=$peerIP/' /usr/lib/systemd/system/docker.service; systemctl daemon-reload; systemctl enable docker; systemctl start docker"
 fi
 
 echo_task "peer: config pip3.6"
@@ -166,8 +161,8 @@ fi
 
 echo_task "peer: re-configure harbor"
 if [[ $skipped -ne 1 ]]; then
-    ssh root@$peerIP "cd $rootPath/harbor; docker-compose down; rm -rf /data/{database,redis,registry}; sed -i -e 's#/data/registry#$harborShareVolume/registry#' -e 's#/data/redis#$harborShareVolume/redis#' -e 's#/data/database#$harborShareVolume/database#' -e 's#/data/secret#/$harborShareVolume/secret#' -e 's#80:80#$harborHABackendPort:80#' docker-compose.yml; sed -i 's#$imgRepo#$imgRepo:$harborHABackendPort#' common/config/core/env; sed -i 's#$imgRepo#$imgRepo:$harborHABackendPort#' common/config/registry/config.yml; docker-compose up -d"
-    if [[ `verify_repo_up "harbor" "$peerIP:$harborHABackendPort"` -ne 1 ]]; then
+    ssh root@$peerIP "cd $rootPath/harbor; docker-compose down; rm -rf /data/{database,redis,registry}; sed -i -e 's#/data/registry#$harborShareVolume/registry#' -e 's#/data/redis#$harborShareVolume/redis#' -e 's#/data/database#$harborShareVolume/database#' -e 's#/data/secret#/$harborShareVolume/secret#' docker-compose.yml; docker-compose up -d"
+    if [[ `verify_repo_up "harbor" "$peerIP"` -ne 1 ]]; then
         echo "Failed to login harbor after 1 min..."
         exit 1
     fi

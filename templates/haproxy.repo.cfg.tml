@@ -2,19 +2,18 @@ global
     maxconn     4000
 
 defaults
-    mode                    http
-    option http-server-close
-    option forwardfor       except 127.0.0.0/8
-    option                  redispatch
-    retries                 3
-    timeout http-request    10s
-    timeout queue           1m
+    #mode                    http
+    #option http-server-close
+    #option forwardfor       except 127.0.0.0/8
+    #option                  redispatch
+    #retries                 3
+    #timeout http-request    10s
+    #timeout queue           1m
     timeout connect         10s
     timeout client          1m
     timeout server          1m
-    timeout http-keep-alive 10s
+    #timeout http-keep-alive 10s
     timeout check           10s
-    maxconn                 3000
 
 listen stats
     bind *:1936
@@ -27,19 +26,16 @@ listen stats
     stats auth admin:password
     stats uri  /haproxy?stats  # curl -u "admin:password" "http://$IP:1936/haproxy?stats;csv"
 
-frontend harbor
-    bind *:80
-    default_backend harbor_be
-
-backend harbor_be
-    balance     roundrobin
-    server      harbor1 {{ myIP }}:{{ harborHABackendPort }} check
-    server      harbor2 {{ peerIP }}:{{ harborHABackendPort }} check
-
 frontend ldap
     bind *:389
     default_backend ldap_be
 
 backend ldap_be
-    server      ldap1 {{ myIP }}:{{ ldapHABackendPort }} check
-    server      ldap2 {{ peerIP }}:{{ ldapHABackendPort }} check backup
+    mode tcp
+{% for ip in ldapIPs.split(' ') %}
+    {% if ldapIPs.split(' ').index(ip) == 0 %}
+    server      ldap_{{ ip.replace('.', '_') }}  {{ ip }}:{{ ldapHABackendPort }} check weight 100
+    {% else %}
+    server      ldap_{{ ip.replace('.', '_') }}  {{ ip }}:{{ ldapHABackendPort }} check backup weight {{ 100 - ldapIPs.split(' ').index(ip) * 10 }}
+    {% endif %}
+{% endfor %}

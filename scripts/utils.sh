@@ -11,31 +11,41 @@ templatePath=$rootPath/templates
 myIP=`cat $rootPath/infra.yml | awk -F'"' '/myIP/{print $2}'`
 peerIP=`cat $rootPath/infra.yml | awk -F'"' '/peerIP/{print $2}'`
 peerRootPW=`cat $rootPath/infra.yml | awk -F'"' '/peerRootPW/{print $2}'`
+
+haproxyHosts=`cat $rootPath/infra.yml | awk -F'"' '/haproxyHosts/{print $2}'`
 vipInterface=`cat $rootPath/infra.yml | awk -F'"' '/vipInterface/{print $2}'`
 keepalivedAdvertIntv=`cat $rootPath/infra.yml | awk -F'"' '/keepalivedAdvertIntv/{print $2}'`
 keepalivedVRID=`cat $rootPath/infra.yml | awk -F'"' '/keepalivedVRID/{print $2}'`
-imgRepo=`cat $rootPath/infra.yml | awk -F'"' '/imageRepo:/{print $2}'`
-imageRepoVIP=`cat $rootPath/infra.yml | awk -F'"' '/imageRepoVIP/{print $2}'`
-pkgRepo=`cat $rootPath/infra.yml | awk -F'"' '/pkgRepo:/{print $2}'`
+keepalivedTag=`cat $rootPath/infra.yml | awk -F'"' '/keepalivedTag/{print $2}'`
+
+imgRepo=`cat $rootPath/infra.yml | awk -F'"' '/^imageRepo:/{print $2}'`
+imageRepoVIP=`for i in $(cat $rootPath/infra.yml | awk -F'"' '/infraVIPs/{print $2}'); do echo $i | awk -F ':' '/imageRepo/{print $2}'; done`
+imgRepoHosts=`cat $rootPath/infra.yml | awk -F'"' '/imgRepoHosts/{print $2}'`
+
+pkgRepo=`cat $rootPath/infra.yml | awk -F'"' '/^pkgRepo:/{print $2}'`
 pkgRepoHost=`echo $pkgRepo | cut -d '/' -f 3 | cut -d ':' -f 1`
 pkgRepoPort=`echo $pkgRepo | cut -d ':' -f 3`
-pkgRepoVIP=`cat $rootPath/infra.yml | awk -F'"' '/pkgRepoVIP/{print $2}'`
-chartRepo=`cat $rootPath/infra.yml | awk -F'"' '/chartRepo:/{print $2}'`
+pkgRepoVIP=`for i in $(cat $rootPath/infra.yml | awk -F'"' '/infraVIPs/{print $2}'); do echo $i | awk -F ':' '/pkgRepo/{print $2}'; done`
+pkgRepoHosts=`cat $rootPath/infra.yml | awk -F'"' '/pkgRepoHosts/{print $2}'`
+pypiPort=`cat $rootPath/infra.yml | awk '/pypiPort/{print $2}'`
+
+chartRepo=`cat $rootPath/infra.yml | awk -F'"' '/^chartRepo:/{print $2}'`
 chartRepoHost=`echo $chartRepo | cut -d '/' -f 3 | cut -d ':' -f 1`
 chartRepoPort=`echo $chartRepo | cut -d ':' -f 3`
-chartRepoVIP=`cat $rootPath/infra.yml | awk -F'"' '/chartRepoVIP/{print $2}'`
+chartRepoVIP=`for i in $(cat $rootPath/infra.yml | awk -F'"' '/infraVIPs/{print $2}'); do echo $i | awk -F ':' '/chartRepo/{print $2}'; done`
+localInfraChartRepo=`cat $rootPath/infra.yml | awk -F'"' '/localInfraChartRepo/{print $2}'`
+
 harborAdminPw=`cat $rootPath/infra.yml | awk -F'"' '/harborAdminPw/{print $2}'`
 harborGcCron=`cat $rootPath/infra.yml | awk -F'"' '/harborGcCron/{print $2}'`
 harborShareVolume=`cat $rootPath/infra.yml | awk -F'"' '/harborShareVolume/{print $2}'`
-harborHABackendPort=`cat $rootPath/infra.yml | awk '/harborHABackendPort/{print $2}'`
-localInfraChartRepo=`cat $rootPath/infra.yml | awk -F'"' '/localInfraChartRepo/{print $2}'`
-pypiPort=`cat $rootPath/infra.yml | awk '/pypiPort/{print $2}'`
+
 ldapOrgName=`cat $rootPath/infra.yml | awk -F'"' '/ldapOrgName/{print $2}'`
 ldapDomain=`cat $rootPath/infra.yml | awk -F'"' '/ldapDomain/{print $2}'`
 ldapRootPW=`cat $rootPath/infra.yml | awk -F'"' '/ldapRootPW/{print $2}'`
 ldapBindDN=`cat $rootPath/infra.yml | awk -F'"' '/ldapBindDN/{print $2}'`
-ldapVIP=`cat $rootPath/infra.yml | awk -F'"' '/ldapVIP/{print $2}'`
+ldapVIP=`for i in $(cat $rootPath/infra.yml | awk -F'"' '/infraVIPs/{print $2}'); do echo $i | awk -F ':' '/ldap/{print $2}'; done`
 ldapHABackendPort=`cat $rootPath/infra.yml | awk '/ldapHABackendPort/{print $2}'`
+ldapHosts=`cat $rootPath/infra.yml | awk -F'"' '/ldapHosts/{print $2}'`
 
 
 tasksNum=`grep -c '^echo_task ' $0`
@@ -103,6 +113,21 @@ function install_deployer_check
         checkFailed=1
     fi
     echo "Materials check pass..."
+}
+
+
+function extract_tar_packages
+{
+    pushd $rootPath
+    num=`ls *.tar | wc -l`
+    idx=1
+    for i in `ls *.tar`; do
+        echo "$idx/$num: $i"
+        tar xf $i
+    rm -f $i
+    idx=$((idx+1))
+    done
+    popd
 }
 
 
@@ -194,6 +219,8 @@ function verify_repo_up
             else
                 ldapsearch -x -H ldap://$2 -b $ldapBindDN -D "cn=admin,$ldapBindDN" -w $ldapRootPW 2>/dev/null 1>/dev/null
             fi
+        elif [[ $1 == "vip" ]]; then
+            ping -c3 -w3 $2 2>/dev/null 1>/dev/null
         fi
         if [[ $? -eq 0 ]]; then
             up=1
@@ -218,4 +245,82 @@ function diff_and_cp
     if [[ $? -ne 0 ]]; then
         cp $1 $2
     fi
+}
+
+
+# Usage, e.g.:
+#   for i in `walk_infra_hosts "${imgRepoHosts[@]}"`; do
+#       host=`echo $i | cut -d ':' -f 1`
+#       rootPw=`echo $i | cut -d ':' -f 2`
+#       echo "host: $host, root password: $rootPw"
+#   done
+function walk_infra_hosts
+{
+    host_ips=`for i in $(echo $1); do echo $i | cut -d ':' -f 1 ; done | xargs -I{} echo {} | sed 's/,/ /'`
+    ipPws=""
+    lastIpIdx=0
+    for j in $(echo $1); do
+        rootPw=`echo $j | awk -F':' '{print $2}'`
+        ipIdx=0
+        for ip in ${host_ips[@]}; do
+            ipIdx=$((ipIdx+1))
+            if [[ $ipIdx -le $lastIpIdx ]]; then
+                continue
+            fi
+            if [[ `echo $j | egrep -c "$ip(,|:)"` -eq 1 ]]; then
+                ipPws="$ip:$rootPw ${ipPws[@]}"
+                lastIpIdx=$((lastIpIdx+1))
+            fi
+        done
+    done
+    echo ${ipPws[@]}
+}
+
+
+function get_infra_ips
+{
+    ips=""
+    for i in `walk_infra_hosts "$1"`; do
+        ip=`echo $i | cut -d ':' -f 1`
+        if [[ `echo ${ips[@]} | grep -c $ip` -eq 0 ]]; then
+            ips="${ips[@]} $ip"
+        fi
+    done
+    echo ${ips[@]}
+}
+
+
+function ssh_authorize
+{
+    sshpass -p foo ssh -o StrictHostKeyChecking=no root@$1 "exit"
+    if [[ $? -ne 0 ]]; then
+        ssh-keyscan $1 >> ~/.ssh/known_hosts
+        sshpass -p $2 ssh-copy-id -f root@$1
+    fi
+}
+
+
+# insert_hosts $nodeIps hostname ip
+function insert_hosts
+{
+    for ip in $1; do
+        if [[ `ssh root@$ip "grep -c $2 /etc/hosts"` -eq 0 ]]; then
+            ssh root@$ip "echo '$3  $2' >> /etc/hosts"
+        fi
+    done
+}
+
+
+function add_pkg_repo_tmp_vip
+{
+    dev=`ip r get 8.8.8.8 | awk '/dev/{print $5}'`
+    for vip in "$pkgRepoVIP" "$chartRepoVIP"; do
+        ip a add dev $dev $vip/32
+    done
+}
+
+
+function get_all_infra_ips
+{
+    get_infra_ips "${imgRepoHosts[@]} ${ldapHosts[@]} ${haproxyHosts[@]} ${pkgRepoHosts[@]}"
 }

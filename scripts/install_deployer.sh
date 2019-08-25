@@ -19,18 +19,9 @@ if [[ -z $myIP ]]; then
 fi
 echo "IP check pass..."
 
-echo_task "express tar packages"
+echo_task "extract tar packages"
 if [[ $skipped -ne 1 ]]; then
-    pushd $rootPath
-    num=`ls *.tar | wc -l`
-    idx=1
-    for i in `ls *.tar`; do
-        echo "$idx/$num: $i"
-        tar xf $i
-	rm -f $i
-	idx=$((idx+1))
-    done
-    popd
+    extract_tar_packages
 fi
 
 echo_task "add infra domain into /etc/hosts"
@@ -258,7 +249,7 @@ if [[ $skipFirstN -eq 0 && $skipLastFrom -eq 0 ]]; then
     echo "Spend seconds: $((`date +%s`-startTime))"
 fi
 echo "Next:"
-echo -e "\t(optional) to deploy a HA peer run:"
-echo -e "\t    $scriptPath/install_deployer_peer.sh\n"
+echo -e "\t(optional) to upgrade to HA, deploy a HA peer run:"
+echo -e "\t    $scriptPath/upgrade_ha_deployers.sh\n"
 echo -e "\tEnsure your cluster file is under $clusterPath, then run:"
 echo -e "\t$scriptPath/pre_deploy_stage_1.sh <YOUR_CLUSTER_NAME>"

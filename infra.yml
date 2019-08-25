@@ -7,7 +7,6 @@ chartRepo: "http://local.chart.io:8070"
 harborAdminPw: "Harbor12345"
 harborGcCron: "0 0 */2 * * *"
 harborShareVolume: "/nfsdata"
-harborHABackendPort: 8081
 # with multitenancy support
 localInfraChartRepo: "local/infra"
 # ldap
@@ -19,15 +18,13 @@ ldapHABackendPort: 1389
 # HA
 peerIP: "192.168.100.213"
 peerRootPW: "zea345lot"
+pkgRepoHosts: "192.168.100.153:zea345lot"
+imgRepoHosts: "192.168.100.153,192.168.100.213:zea345lot"
+ldapHosts: "192.168.100.153,192.168.100.213:zea345lot"
+haproxyHosts: "192.168.100.153,192.168.100.213:zea345lot"
 # keepalived
 vipInterface: "eth0"
 keepalivedAdvertIntv: "2"
 keepalivedVRID: "123"
-# active-active ha
-imageRepoVIP: "192.168.100.151"
-# active-active ha
-pkgRepoVIP: "192.168.100.151"
-# active-active ha
-chartRepoVIP: "192.168.100.151"
-# active-active ha
-ldapVIP: "192.168.100.151"
+infraVIPs: "imageRepo,ldap,pkgRepo,chartRepo:192.168.100.151"
+keepalivedTag: "v0.2"

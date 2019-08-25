@@ -11,10 +11,10 @@ fi
 
 docker login -uadmin -p$harborAdminPw $imgRepo
 
-num=`ls $rootPath/images | wc -l`
+num=`ls $imgPath | wc -l`
 idx=0
-for i in `ls $rootPath/images/*.tar`; do
-    refered=`grep $i $rootPath/images/refer | awk '{print $2" "$3}'`
+for i in `ls $imgPath/*.tar`; do
+    refered=`grep $i $imgPath/refer | awk '{print $2" "$3}'`
     if [[ ! -z $refered ]]; then
         referFile=`echo $refered | awk '{print $1}'`
         referKey=`grep $refered | awk '{print $2}'`
@@ -25,7 +25,7 @@ for i in `ls $rootPath/images/*.tar`; do
     fi
     docker load < $i > $tmpFile
     if [[ $? -ne 0 ]]; then
-	echo "Failed to load image $rootPath/images/$i"
+	echo "Failed to load image $imgPath/$i"
 	exit 1
     fi
     oldInfo=`awk '{print $3}' $tmpFile`
@@ -70,7 +70,7 @@ for i in `ls $rootPath/images/*.tar`; do
 	fi
     fi
     docker rmi $oldInfo $newImage
-    rm -f $rootPath/images/$i
+    rm -f $imgPath/$i
     idx=$((idx+1))
 done
 

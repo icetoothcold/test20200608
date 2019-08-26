@@ -23,4 +23,5 @@ vrrp_instance VI_1 {
     track_script {
         repo_check
     }
+    <NOTIFY>
 }

@@ -11,5 +11,9 @@ for i in ${VIPS[@]}; do
         VIP_DEVS="        $i dev <INTF>\n$VIP_DEVS"
     fi
 done
-sed -e "s/<VIP_DEVS>/$VIP_DEVS/" -e "s/<MY_IP>/$MY_IP/" -e "s/<INTF>/$INTF/" -e "s/<AD_INT>/$AD_INT/" -e "s/<VRID>/$VRID/" -e "s/<PEERS>/$PEERS/" /config/keepalived.conf.temp > keepalived.conf
+NOTIFY=""
+if [[ ! -z $NOTIFY_SCRIPT ]]; then
+    NOTIFY="notify $NOTIFY_SCRIPT"
+fi
+sed -e "s#<NOTIFY>#$NOTIFY#" -e "s/<VIP_DEVS>/$VIP_DEVS/" -e "s/<MY_IP>/$MY_IP/" -e "s/<INTF>/$INTF/" -e "s/<AD_INT>/$AD_INT/" -e "s/<VRID>/$VRID/" -e "s/<PEERS>/$PEERS/" /config/keepalived.conf.temp > keepalived.conf
 /keepalived -f keepalived.conf -P -n -l

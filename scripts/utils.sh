@@ -57,6 +57,13 @@ kubeVersion=""
 force=""
 declare -a hostIPs
 
+CMD_DISABLE_FIREWALLD="systemctl stop firewalld; systemctl disable firewalld"
+CMD_BACKUP_YUM_REPOS="mkdir /etc/yum.repos.d/bak; mv /etc/yum.repos.d/*.repo /etc/yum.repos.d/bak"
+CMD_BACKUP_IPTABLES="touch /etc/sysconfig/iptables; touch /etc/sysconfig/ip6tables; ts=\$(date +%s); cp /etc/sysconfig/iptables /etc/sysconfig/iptables-\$ts; cp /etc/sysconfig/ip6tables /etc/sysconfig/ip6tables-\$ts; iptables-save >/etc/sysconfig/iptables; ip6tables-save >/etc/sysconfig/ip6tables"
+CMD_SYSTEMCTL_RESTART_DOCKER="systemctl daemon-reload; systemctl enable docker; systemctl restart docker"
+CMD_CONFIG_PIP="pip3.6 install -i http://$pkgRepoHost:$pypiPort/simple --trusted-host $pkgRepoHost pip -U; ln -s /usr/local/bin/pip3.6 /usr/bin/pip3.6; pip3.6 config set global.index-url http://$pkgRepoHost:$pypiPort/simple; pip3.6 config set global.trusted-host $pkgRepoHost"
+CMD_GET_EXTRACT_HARBOR="cd $rootPath; curl $pkgRepo/harbor-offline-installer-v1.8.1.tgz -o harbor-offline-installer-v1.8.1.tgz; tar xf harbor-offline-installer-v1.8.1.tgz; rm -f harbor-offline-installer-v1.8.1.tgz"
+CMD_MODIFY_HARBOR_HOST_PSWD="sed -i -e 's#^hostname:.*#hostname: $imgRepo#' -e 's/^harbor_admin_password:.*/harbor_admin_password: $harborAdminPw/' harbor.yml"
 
 # call script should define taskId, skipped, tasksNum, skipFirstN, skipLastFrom, notSkip
 function echo_task

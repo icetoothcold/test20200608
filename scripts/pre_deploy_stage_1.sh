@@ -15,12 +15,8 @@ fi
 
 echo "insert deployer key to host authorized_keys"
 for ip in ${hostIPs[@]}; do
-    sshpass -p foo ssh -o StrictHostKeyChecking=no root@$ip "exit"
-    if [[ $? -eq 0 ]]; then
-        continue
-    fi
-    ssh-keyscan $ip >> ~/.ssh/known_hosts
-    sshpass -p `grep $ip $clusterFile | awk '{print $2}'` ssh-copy-id root@$ip
+    rootPw=`grep $ip $clusterFile | awk '{print $2}'`
+    ssh_authorize $ip $rootPw
 done
 
 echo "insert repos IP to /etc/hosts"
@@ -45,12 +41,12 @@ done
 
 echo "backup host repo, and install private repo"
 for ip in ${hostIPs[@]}; do
-    ssh root@$ip "mkdir /etc/yum.repos.d/bak; mv /etc/yum.repos.d/*.repo /etc/yum.repos.d/bak; curl $pkgRepo/private.repo -o /etc/yum.repos.d/private.repo"
+    ssh root@$ip "$CMD_BACKUP_YUM_REPOS ; curl $pkgRepo/private.repo -o /etc/yum.repos.d/private.repo"
 done
 
 echo "stop firewalld"
 for ip in ${hostIPs[@]}; do
-    ssh root@$ip "systemctl stop firewalld && systemctl disable firewalld"
+    ssh root@$ip "$CMD_DISABLE_FIREWALLD"
 done
 
 pushd $rootPath/kubespray

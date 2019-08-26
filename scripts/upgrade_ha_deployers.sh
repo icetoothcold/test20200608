@@ -44,7 +44,7 @@ if [[ $skipped -ne 1 ]]; then
     pushd $rootPath/harbor
     docker-compose down
     mv /data/{database,redis,registry,secret} $harborShareVolume
-    sed -i -e "s#/data/registry#$harborShareVolume/registry#" -e "s#/data/redis#$harborShareVolume/redis#" -e "s#/data/database#$harborShareVolume/database#" -e "s#/data/secret#/$harborShareVolume/secret#" docker-compose.yml
+    sed -i -e "s#/data/registry#$harborShareVolume/registry#" -e "s#/data/redis#$harborShareVolume/redis#" -e "s#/data/database#$harborShareVolume/database#" -e "s#/data/secret#$harborShareVolume/secret#" docker-compose.yml
     docker-compose up -d
     popd
     if [[ `verify_repo_up "harbor" "$myIP"` -ne 1 ]]; then
@@ -64,8 +64,13 @@ fi
 
 echo_task "start haproxy"
 if [[ $skipped -ne 1 ]]; then
-    jinja2 $templatePath/haproxy.repo.cfg.tml $rootPath/infra.yml --format=yaml > $templatePath/haproxy.repo.cfg
+    tmpData="data.tmp`date +%s`"
+    cat $rootPath/infra.yml > $tmpData
+    ldapIPs=`get_infra_ips "${ldapHosts[@]}"`
+    echo "ldapIPs: $ldapIPs" >> $tmpData
+    jinja2 $templatePath/haproxy.repo.cfg.tml $tmpData --format=yaml > $templatePath/haproxy.repo.cfg
     bash $scriptPath/start_haproxy.sh
+    rm $tmpData
 fi
 
 echo_task "start keepalived"
@@ -88,7 +93,7 @@ fi
 
 echo_task "peer: backup host repo, and install private repo"
 if [[ $skipped -ne 1 ]]; then
-    ssh root@$peerIP "mkdir /etc/yum.repos.d/bak; mv /etc/yum.repos.d/*.repo /etc/yum.repos.d/bak; curl $pkgRepo/private.repo -o /etc/yum.repos.d/private.repo; yum clean all"
+    ssh root@$peerIP "$CMD_BACKUP_YUM_REPOS ; curl $pkgRepo/private.repo -o /etc/yum.repos.d/private.repo; yum clean all"
 fi
 
 echo_task "peer: install requirements"
@@ -98,18 +103,17 @@ fi
 
 echo_task "peer: disable firewalld service and save clean iptables"
 if [[ $skipped -ne 1 ]]; then
-    ts=`date +%s`
-    ssh root@$peerIP "systemctl stop firewalld; systemctl disable firewalld; touch /etc/sysconfig/iptables; touch /etc/sysconfig/ip6tables; cp /etc/sysconfig/iptables /etc/sysconfig/iptables-$ts; cp /etc/sysconfig/ip6tables /etc/sysconfig/ip6tables-$ts; iptables-save >/etc/sysconfig/iptables; ip6tables-save >/etc/sysconfig/ip6tables"
+    ssh root@$peerIP "$CMD_DISABLE_FIREWALLD; $CMD_BACKUP_IPTABLES"
 fi
 
 echo_task "peer: add insecure-registry and enable docker"
 if [[ $skipped -ne 1 ]]; then
-    ssh root@$peerIP "sed -i '/ExecStart=/ s/$/ --insecure-registry=$imgRepot --insecure-registry=$myIP --insecure-registry=$peerIP/' /usr/lib/systemd/system/docker.service; systemctl daemon-reload; systemctl enable docker; systemctl start docker"
+    ssh root@$peerIP "sed -i '/ExecStart=/ s/$/ --insecure-registry=$imgRepo --insecure-registry=$myIP --insecure-registry=$peerIP/' /usr/lib/systemd/system/docker.service; $CMD_SYSTEMCTL_RESTART_DOCKER"
 fi
 
 echo_task "peer: config pip3.6"
 if [[ $skipped -ne 1 ]]; then
-    ssh root@$peerIP "pip3.6 install -i http://$pkgRepoHost:$pypiPort/simple --trusted-host $pkgRepoHost pip -U; ln -s /usr/local/bin/pip3.6 /usr/bin/pip3.6; pip3.6 config set global.index-url http://$pkgRepoHost:$pypiPort/simple; pip3.6 config set global.trusted-host $pkgRepoHost"
+    ssh root@$peerIP "$CMD_CONFIG_PIP"
 fi
 
 echo_task "peer: pip install requirements"
@@ -152,7 +156,7 @@ fi
 
 echo_task "peer: install harbor"
 if [[ $skipped -ne 1 ]]; then
-    ssh root@$peerIP "cd $rootPath; curl $pkgRepo/harbor-offline-installer-v1.8.1.tgz -o harbor-offline-installer-v1.8.1.tgz; tar xf harbor-offline-installer-v1.8.1.tgz; rm -f harbor-offline-installer-v1.8.1.tgz; cd harbor; sed -i -e 's/^hostname:.*/hostname: $imgRepo/' -e 's/^harbor_admin_password:.*/harbor_admin_password: $harborAdminPw/' harbor.yml; ./install.sh; rm -f harbor.v1.8.1.tar.gz"
+    ssh root@$peerIP "$CMD_GET_EXTRACT_HARBOR; cd harbor; $CMD_MODIFY_HARBOR_HOST_PSWD ; ./install.sh; rm -f harbor.v1.8.1.tar.gz"
     if [[ `verify_repo_up "harbor" "$peerIP"` -ne 1 ]]; then
         echo "Failed to login harbor after 1 min..."
         exit 1
@@ -161,7 +165,7 @@ fi
 
 echo_task "peer: re-configure harbor"
 if [[ $skipped -ne 1 ]]; then
-    ssh root@$peerIP "cd $rootPath/harbor; docker-compose down; rm -rf /data/{database,redis,registry}; sed -i -e 's#/data/registry#$harborShareVolume/registry#' -e 's#/data/redis#$harborShareVolume/redis#' -e 's#/data/database#$harborShareVolume/database#' -e 's#/data/secret#/$harborShareVolume/secret#' docker-compose.yml; docker-compose up -d"
+    ssh root@$peerIP "cd $rootPath/harbor; docker-compose down; rm -rf /data/{database,redis,registry,secret}; sed -i -e 's#/data/registry#$harborShareVolume/registry#' -e 's#/data/redis#$harborShareVolume/redis#' -e 's#/data/database#$harborShareVolume/database#' -e 's#/data/secret#$harborShareVolume/secret#' docker-compose.yml; docker-compose up -d"
     if [[ `verify_repo_up "harbor" "$peerIP"` -ne 1 ]]; then
         echo "Failed to login harbor after 1 min..."
         exit 1

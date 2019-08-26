@@ -93,14 +93,14 @@ fi
 echo_task "backup current yum repos and get private repo"
 if [[ $skipped -ne 1 ]]; then
     for ip in `get_all_infra_ips`; do
-        ssh root@$ip "mkdir /etc/yum.repos.d/bak; mv /etc/yum.repos.d/*.repo /etc/yum.repos.d/bak; curl --retry 10 --retry-delay 3 --retry-max-time 30 $pkgRepo/private.repo -o /etc/yum.repos.d/private.repo; yum clean all"
+        ssh root@$ip "$CMD_BACKUP_YUM_REPOS ; curl --retry 10 --retry-delay 3 --retry-max-time 30 $pkgRepo/private.repo -o /etc/yum.repos.d/private.repo; yum clean all"
     done
 fi
 
 echo_task "install and configure: iptables"
 if [[ $skipped -ne 1 ]]; then
     for ip in `get_all_infra_ips`; do
-        ssh root@$ip "yum install -y iptables iptables-services iptables-utils; systemctl stop firewalld; systemctl disable firewalld; touch /etc/sysconfig/iptables; touch /etc/sysconfig/ip6tables; cp /etc/sysconfig/iptables /etc/sysconfig/iptables-$ts; cp /etc/sysconfig/ip6tables /etc/sysconfig/ip6tables-$ts; iptables-save >/etc/sysconfig/iptables; ip6tables-save >/etc/sysconfig/ip6tables"
+        ssh root@$ip "yum install -y iptables iptables-services iptables-utils; $CMD_DISABLE_FIREWALLD; $CMD_BACKUP_IPTABLES"
     done
 fi
 
@@ -111,7 +111,7 @@ if [[ $skipped -ne 1 ]]; then
         insecReg="--insecure-registry=$ip ${insecReg[@]}"
     done
     for ip in `get_all_infra_ips`; do
-        ssh root@$ip "yum install -y docker-ce; sed -i '/ExecStart=/ s/$/ --insecure-registry=$imgRepo ${insecReg[@]}/' /usr/lib/systemd/system/docker.service; systemctl daemon-reload; systemctl enable docker; systemctl restart docker"
+        ssh root@$ip "yum install -y docker-ce; sed -i '/ExecStart=/ s/$/ --insecure-registry=$imgRepo ${insecReg[@]}/' /usr/lib/systemd/system/docker.service; $CMD_SYSTEMCTL_RESTART_DOCKER"
         if [[ `ip a | grep -c $ip` -eq 1 ]]; then
             bash $scriptPath/start_repo.sh
             if [[ `verify_repo_up "repo"` -ne 1 ]]; then
@@ -125,7 +125,7 @@ fi
 echo_task "install and configure: pip3.6, jinja2-cli"
 if [[ $skipped -ne 1 ]]; then
     for ip in `get_all_infra_ips`; do
-        ssh root@$ip "yum install -y python36 python36-pip; pip3.6 install -i http://$pkgRepoHost:$pypiPort/simple --trusted-host $pkgRepoHost pip -U; ln -s /usr/local/bin/pip3.6 /usr/bin/pip3.6; pip3.6 config set global.index-url http://$pkgRepoHost:$pypiPort/simple; pip3.6 config set global.trusted-host $pkgRepoHost; pip3.6 install jinja2-cli"
+        ssh root@$ip "yum install -y python36 python36-pip; $CMD_CONFIG_PIP ; pip3.6 install jinja2-cli"
     done
 fi
 
@@ -144,18 +144,12 @@ if [[ $skipped -ne 1 ]]; then
     done
 fi
 
-firstImgRepoIP=""
 echo_task "install docker-compose, harbor"
 if [[ $skipped -ne 1 ]]; then
     ips=`get_infra_ips "${imgRepoHosts[@]}"`
     firstImgRepoIP=`echo ${ips[@]} | cut -d ' ' -f 1`
     for ip in ${ips[@]}; do
-        ssh root@$ip "yum -y install docker-compose; cd $rootPath; curl $pkgRepo/harbor-offline-installer-v1.8.1.tgz -o harbor-offline-installer-v1.8.1.tgz; tar xf harbor-offline-installer-v1.8.1.tgz; rm -f harbor-offline-installer-v1.8.1.tgz; cd harbor; sed -i -e 's#^hostname:.*#hostname: $imgRepo#' -e 's/^harbor_admin_password:.*/harbor_admin_password: $harborAdminPw/' harbor.yml"
-        if [[ "$ip" == "$firstImgRepoIP" ]]; then
-            ssh root@$ip "cd $rootPath/harbor; sed -i 's#^data_volume.*#data_volume: $harborShareVolume#' harbor.yml; ./install.sh; rm -f harbor.v1.8.1.tar.gz"
-        else
-            ssh root@$ip "cd $rootPath/harbor; ./install.sh; rm -f harbor.v1.8.1.tar.gz"
-        fi
+        ssh root@$ip "yum -y install docker-compose; $CMD_GET_EXTRACT_HARBOR ; cd harbor; $CMD_MODIFY_HARBOR_HOST_PSWD ; ./install.sh; rm -f harbor.v1.8.1.tar.gz"
         if [[ `verify_repo_up "harbor" "$ip"` -ne 1 ]]; then
             echo "Failed to login harbor after 1 min..."
             exit 1
@@ -163,15 +157,19 @@ if [[ $skipped -ne 1 ]]; then
     done
 fi
 
-echo_task "re-configure secondary harbor"
+echo_task "re-configure harbor"
 if [[ $skipped -ne 1 ]]; then
-    for ip in `get_infra_ips "${imgRepoHosts[@]}"`; do
-        if [[ "$ip" != "$firstImgRepoIP" ]]; then
-            ssh root@$ip "cd $rootPath/harbor; docker-compose down; sed -i 's#/data/#$harborShareVolume/#' docker-compose.yml; rm -rf /data; docker-compose up -d"
-            if [[ `verify_repo_up "harbor" "$ip"` -ne 1 ]]; then
-                echo "Failed to login harbor after 1 min..."
-                exit 1
-            fi
+    ips=`get_infra_ips "${imgRepoHosts[@]}"`
+    firstImgRepoIP=`echo ${ips[@]} | cut -d ' ' -f 1`
+    for ip in ${ips[@]}; do
+        if [[ "$ip" == "$firstImgRepoIP" ]]; then
+            ssh root@$ip "rm -rf $harborShareVolume/{database,redis,registry,secret}; mv /data/{database,redis,registry,secret} $harborShareVolume; cd $rootPath/harbor; docker-compose down; sed -i -e 's#/data/registry#$harborShareVolume/registry#' -e 's#/data/redis#$harborShareVolume/redis#' -e 's#/data/database#$harborShareVolume/database#' -e 's#/data/secret#$harborShareVolume/secret#' docker-compose.yml; docker-compose up -d"
+        else
+            ssh root@$ip "cd $rootPath/harbor; docker-compose down; rm -rf /data/{database,redis,registry,secret}; sed -i -e 's#/data/registry#$harborShareVolume/registry#' -e 's#/data/redis#$harborShareVolume/redis#' -e 's#/data/database#$harborShareVolume/database#' -e 's#/data/secret#$harborShareVolume/secret#' docker-compose.yml; docker-compose up -d"
+        fi
+        if [[ `verify_repo_up "harbor" "$ip"` -ne 1 ]]; then
+            echo "Failed to login harbor after 1 min..."
+            exit 1
         fi
     done
 fi
@@ -189,6 +187,8 @@ fi
 
 echo_task "start keepalived, remove temporary VIP and verify"
 if [[ $skipped -ne 1 ]]; then
+    ips=`get_infra_ips "${imgRepoHosts[@]}"`
+    firstImgRepoIP=`echo ${ips[@]} | cut -d ' ' -f 1`
     for ip in `get_infra_ips "${haproxyHosts[@]}"`; do
         scp $imgPath/keepalived-vip.${keepalivedTag}.tar root@$ip:.
         ssh root@$ip "docker load < keepalived-vip.${keepalivedTag}.tar; rm -f keepalived-vip.${keepalivedTag}.tar; docker tag keepalived-vip:$keepalivedTag $imgRepo/library/keepalived-vip:$keepalivedTag; bash $scriptPath/start_keepalived.sh"
@@ -207,6 +207,7 @@ fi
 echo_task "load images to harbor"
 if [[ $skipped -ne 1 ]]; then
     ips=`get_infra_ips "${imgRepoHosts[@]}"`
+    firstImgRepoIP=`echo ${ips[@]} | cut -d ' ' -f 1`
     if [[ `echo ${ips[@]} | grep -c $myIP` -eq 1 ]]; then
         bash $scriptPath/load_images.sh
     else

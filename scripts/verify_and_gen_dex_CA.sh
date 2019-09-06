@@ -7,8 +7,14 @@ if [[ -z $1 ]]; then
     exit 1
 fi
 
+if [[ -z $2 ]]; then
+    echo "No dexDNS assigned"
+    exit 1
+fi
+
 rootPath="$(cd `dirname $0`; cd ..; pwd)"
 clusterName=$1
+dexDNS=$2
 outputPath=$rootPath/clusters/${1}_dex_ca
 gen=1
 
@@ -22,7 +28,7 @@ else
         rm -rf $outputPath/*
     else
         checkInfo=`openssl x509 -text -in $outputPath/cert.pem | awk -F':' '/Issuer/||/DNS/{print $2}'`
-        if [[ `echo $checkInfo | grep -c "CN=kube-ca"` -eq 0 || `echo $checkInfo | grep -c "dex.$clusterName.io"` -eq 0 ]]; then
+        if [[ `echo $checkInfo | grep -c "CN=kube-ca"` -eq 0 || `echo $checkInfo | grep -c "$dexDNS"` -eq 0 ]]; then
             rm -rf $outputPath/*
         else
             gen=0
@@ -47,7 +53,7 @@ keyUsage = nonRepudiation, digitalSignature, keyEncipherment
 subjectAltName = @alt_names
 
 [alt_names]
-DNS.1 = dex.$clusterName.io
+DNS.1 = $dexDNS
 EOF
 
 openssl genrsa -out $outputPath/ca-key.pem 2048

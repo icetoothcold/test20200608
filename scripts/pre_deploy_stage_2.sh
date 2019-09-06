@@ -1,4 +1,7 @@
 rootPath="$(cd `dirname $0`; cd .. ; pwd)"
+dexDNS=`cat $rootPath/infra.yml | awk -F'"' '/dexDNS/{print $2}'`
+loginappDNS=`cat $rootPath/infra.yml | awk -F'"' '/loginappDNS/{print $2}'`
+
 source $rootPath/scripts/utils.sh
 
 if [[ -z $1 ]]; then
@@ -16,7 +19,7 @@ clusterName=$1
 masterIPs=`get_master_ips_string $clusterName`
 
 echo "generate dex CA files"
-bash $scriptPath/verify_and_gen_dex_CA.sh $clusterName
+bash $scriptPath/verify_and_gen_dex_CA.sh $clusterName $dexDNS
 
 echo "push dex CA files to masters /etc/ssl/dex"
 for ip in ${masterIPs[@]}; do

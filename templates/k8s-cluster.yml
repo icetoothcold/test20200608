@@ -87,5 +87,5 @@ kube_oidc_username_claim: name
 kube_oidc_username_prefix: "oidc:"
 kube_oidc_groups_claim: groups
 cluster_api_vip: "{{ vip }}"
-kube_oidc_dex_host: "dex.{{ clusterName }}.io"
-kube_oidc_loginapp_host: "loginapp.{{ clusterName }}.io"
+kube_oidc_dex_host: "{{ dexDNS }}"
+kube_oidc_loginapp_host: "{{ loginappDNS }}"

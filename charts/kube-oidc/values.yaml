@@ -36,10 +36,10 @@ dex:
   podAnnotations: {}
   port: 8080
   servicePort: 8080
-  tlsSecret: dex.{{ clusterName }}.io
+  tlsSecret: {{ dexDNS }}
 
   secret:
-    name: dex.{{ clusterName }}.io
+    name: {{ dexDNS }}
     tls:
       key: ""
       crt: ""
@@ -51,11 +51,11 @@ dex:
       # kubernetes.io/ingress.class: nginx
       # kubernetes.io/tls-acme: 'true'
     hosts:
-      - dex.{{ clusterName }}.io
+      - {{ dexDNS }}
     tls:
-      - secretName: dex.{{ clusterName }}.io
+      - secretName: {{ dexDNS }}
         hosts:
-          - dex.{{ clusterName }}.io
+          - {{ dexDNS }}
 
   # RBAC
   rbac:
@@ -66,7 +66,7 @@ dex:
   # Dex configuration
   # See https://github.com/coreos/dex/tree/master/Documentation
   config:
-    issuer: https://dex.{{ clusterName }}.io/dex
+    issuer: https://{{ dexDNS }}/dex
     storage:
       # Kubernetes storage by default, Dex will create CRD on first launch:
       # * authcodes.dex.coreos.com
@@ -171,7 +171,7 @@ dex:
     staticClients:
     - id: loginapp
       redirectURIs:
-      - 'https://loginapp.{{ clusterName }}.io/callback'
+      - 'https://{{ loginappDNS }}/callback'
       name: 'Login Application'
       secret: ZXhhbXBsZS1hcHAtc2VjcmV0
     # If keycloak is enabled, uncomment and complete
@@ -224,7 +224,7 @@ loginapp:
       # kubernetes.io/ingress.class: nginx
       # kubernetes.io/tls-acme: 'true'
     hosts:
-      - loginapp.{{ clusterName }}.io
+      - {{ loginappDNS }}
     tls: []
     #  - secretName: loginapp-example-tls
     #    hosts:
@@ -239,10 +239,10 @@ loginapp:
       client:
         id: "loginapp"
         secret: ZXhhbXBsZS1hcHAtc2VjcmV0
-        redirect_url: "https://loginapp.{{ clusterName }}.io/callback"
+        redirect_url: "https://{{ loginappDNS }}/callback"
       issuer:
         root_ca: "/etc/ssl/ca.pem"
-        url: "https://dex.{{ clusterName }}.io/dex"
+        url: "https://{{ dexDNS }}/dex"
     log:
       level: "warning"
       format: json

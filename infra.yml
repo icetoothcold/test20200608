@@ -15,6 +15,8 @@ ldapDomain: "local.ldap.io"
 ldapBindDN: "dc=local,dc=ldap,dc=io"
 ldapRootPW: "ldapAdmin"
 ldapHABackendPort: 1389
+dexDNS: dex.local.io
+loginappDNS: loginapp.local.io
 # HA
 peerIP: "192.168.100.213"
 peerRootPW: "zea345lot"

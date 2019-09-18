@@ -13,9 +13,8 @@
   },
   "devDependencies": {},
   "scripts": {
-    "release": "./release.sh",
-    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md && npm run changeissueurl",
-    "changeissueurl": "replace 'https://github.com/myproject/issues/' 'https://redmine.example.com/' CHANGELOG.md"
+    "release": "./scripts/release.sh",
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md "
   },
   "repository": {
     "type": "git",

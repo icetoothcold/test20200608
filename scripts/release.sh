@@ -3,6 +3,7 @@
 while [[ "$#" > 0 ]]; do case $1 in
   -r|--release) release="$2"; shift;;
   -b|--branch) branch="$2"; shift;;
+  -m|--releaseCommitMessageFormat) message="$2"; shift;;
   *) echo "Unknown parameter passed: $1"; exit 1;;
 esac; shift; done
 
@@ -23,11 +24,11 @@ echo "Release as $release"
 # Tag prefix
 prefix="verified-"
 
-#git pull origin $branch
-#echo "Current pull origin $branch."
+git pull origin $branch
+echo "Current pull origin $branch."
 
 # Generate version number and tag
-standard-version -r $release --tag-prefix $prefix --infile CHANGELOG.md
+standard-version -r $release --tag-prefix $prefix --infile CHANGELOG.md --releaseCommitMessageFormat $message --no-verify
 
 git push --follow-tags origin $branch
 

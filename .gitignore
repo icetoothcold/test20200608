@@ -10,3 +10,7 @@ clusters/*
 rpms_and_files
 
 tests/nfsutils/
+
+infra_pkgs/
+
+pypi3.6/

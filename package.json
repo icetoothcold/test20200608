@@ -1,6 +1,6 @@
 {
   "name": "onecacheks",
-  "version": "0.0.0",
+  "version": "0.3.0",
   "description": "oneCacheKS致力于快速启动一整套高可用`Kubernetes`环境。",
   "main": "无",
   "directories": {

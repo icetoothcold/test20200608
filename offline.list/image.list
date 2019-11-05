@@ -1,33 +1,35 @@
-keepalived-vip:v0.1
-lachlanevenson/k8s-helm:v2.14.3
-gcr.io/kubernetes-helm/tiller:v2.14.3
-coredns/coredns:1.6.0
-onecache:latest
-chartmuseum/chartmuseum:latest
-quay.io/kubernetes-ingress-controller/nginx-ingress-controller:0.25.0
-gcr.io/google-containers/kube-proxy:v1.15.0
-gcr.io/google-containers/kube-apiserver:v1.15.0
-gcr.io/google-containers/kube-controller-manager:v1.15.0
-gcr.io/google-containers/kube-scheduler:v1.15.0
-busybox:latest
-calico/node:v3.7.3
-calico/cni:v3.7.3
-calico/kube-controllers:v3.7.3
-calico/typha:v3.7.3
-traefik:1.7.12
-osixia/openldap:1.2.4
-nginx:1.15
-gcr.io/google_containers/metrics-server-amd64:v0.3.3
-k8s.gcr.io/cluster-proportional-autoscaler-amd64:1.6.0
-quay.io/external_storage/local-volume-provisioner:v2.3.2
-quay.io/fydrah/loginapp:2.7.0
-centos:latest
-quay.io/dexidp/dex:v2.15.0
-k8s.gcr.io/k8s-dns-node-cache:1.15.1
-gcr.io/google_containers/kubernetes-dashboard-amd64:v1.10.1
-rancher/local-path-provisioner:v0.0.2
-quay.io/coreos/etcd:v3.3.10
-calico/routereflector:v0.6.1
-gcr.io/google-containers/pause:3.1
-gcr.io/google_containers/pause-amd64:3.1
-gcr.io/google_containers/kube-registry-proxy:0.4
+busybox.latest.tar
+calico_cni.v3.7.3.tar  =>  calico/cni:v3.7.3
+calico_kube-controllers.v3.7.3.tar  =>  calico/kube-controllers:v3.7.3
+calico_node.v3.7.3.tar  =>  calico/node:v3.7.3
+calico_routereflector.v0.6.1.tar  =>  calico/routereflector:v0.6.1
+calico_typha.v3.7.3.tar  =>  calico/typha:v3.7.3
+chartmuseum.latest.tar  =>  chartmuseum/chartmuseum:latest
+cluster-proportional-autoscaler-amd64.1.6.0.tar  =>  k8s.gcr.io/cluster-proportional-autoscaler-amd64:1.6.0
+coredns.1.6.0.tar  =>  coredns/coredns:1.6.0
+dex.v2.15.0.tar  =>  quay.io/dexidp/dex:v2.15.0
+etcd.v3.3.10.tar  =>  quay.io/coreos/etcd:v3.3.10
+haproxy.latest.tar
+k8s-dns-node-cache.1.15.1.tar  =>  k8s.gcr.io/k8s-dns-node-cache:1.15.1
+k8s-helm.v2.14.3.tar  =>  lachlanevenson/k8s-helm:v2.14.3
+keepalived-vip.v0.2.tar
+kube-apiserver.v1.15.0.tar  =>  gcr.io/google-containers/kube-apiserver:v1.15.0
+kube-controller-manager.v1.15.0.tar  =>  gcr.io/google-containers/kube-controller-manager:v1.15.0
+kube-proxy.v1.15.0.tar  =>  gcr.io/google-containers/kube-proxy:v1.15.0
+kube-registry-proxy.0.4.tar  =>  gcr.io/google_containers/kube-registry-proxy:0.4
+kubernetes-dashboard-amd64.v1.10.1.tar  =>  gcr.io/google_containers/kubernetes-dashboard-amd64:v1.10.1
+kube-scheduler.v1.15.0.tar  =>  gcr.io/google-containers/kube-scheduler:v1.15.0
+local-path-provisioner.v0.0.2.tar  =>  rancher/local-path-provisioner:v0.0.2
+local-volume-provisioner.v2.3.2.tar  =>  quay.io/external_storage/local-volume-provisioner:v2.3.2
+loginapp.2.7.0.tar  =>  quay.io/fydrah/loginapp:2.7.0
+loginapp-proxy.v0.2.tar
+metrics-server-amd64.v0.3.3.tar  =>  gcr.io/google_containers/metrics-server-amd64:v0.3.3
+nginx.1.15.tar
+nginx-ingress-controller.0.25.0.tar  =>  quay.io/kubernetes-ingress-controller/nginx-ingress-controller:0.25.0
+onecache.latest.tar
+openldap.1.2.4.tar  =>  osixia/openldap:1.2.4
+pause.3.1.tar  =>  gcr.io/google-containers/pause:3.1
+pause-amd64.3.1.tar  =>  gcr.io/google_containers/pause-amd64:3.1
+postgres.9.6.tar
+tiller.v2.14.3.tar  =>  gcr.io/kubernetes-helm/tiller:v2.14.3
+traefik.1.7.12.tar  =>  traefik:1.7.12

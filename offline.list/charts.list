@@ -1,0 +1,3 @@
+# tar -c <directory> -f /dev/stdout | md5sum
+
+kube-oidc: 1a11a3817be3302ffef5e0c389240db9

@@ -29,8 +29,7 @@ dex:
   nodeSelector:
     node-role.kubernetes.io/master: ""
   tolerations:
-  - key: "key"
-    operator: "Exists"
+  - key: node-role.kubernetes.io/master
     effect: "NoSchedule"
   affinity: {}
   podAnnotations: {}
@@ -209,8 +208,7 @@ loginapp:
   nodeSelector:
     node-role.kubernetes.io/master: ""
   tolerations:
-  - key: "key"
-    operator: "Exists"
+  - key: node-role.kubernetes.io/master
     effect: "NoSchedule"
   affinity: {}
   podAnnotations: {}

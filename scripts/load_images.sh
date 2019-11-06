@@ -25,8 +25,8 @@ for i in `ls $imgPath/*.tar`; do
     fi
     docker load < $i > $tmpFile
     if [[ $? -ne 0 ]]; then
-	echo "Failed to load image $imgPath/$i"
-	exit 1
+        echo "Failed to load image $imgPath/$i"
+        exit 1
     fi
     oldInfo=`awk '{print $3}' $tmpFile`
     echo -n -e "$idx/$num: Retag $oldInfo "
@@ -42,11 +42,11 @@ for i in `ls $imgPath/*.tar`; do
     proj=`echo $oldRepo | cut -d '/' -f 2-`
     if [[ $level -eq 3 ]]; then
         # docker images | awk '{print $1}' | awk -F"/" '{if(NF>2)print $1}' | sort | uniq -c
-	    :
+        :
     elif [[ $level -eq 1 ]]; then
-	    proj="library/$site"
+        proj="library/$site"
     elif [[ $site == "k8s.gcr.io" ]]; then
-	    proj=`echo $site | sed 's/\./_/g'`"/"$proj
+        proj=`echo $site | sed 's/\./_/g'`"/"$proj
     else
         proj="$site/$proj"
     fi
@@ -56,18 +56,18 @@ for i in `ls $imgPath/*.tar`; do
     docker tag $oldInfo $newImage
     docker push $newImage
     if [[ $? -ne 0 ]]; then
-	projName=`echo $proj | cut -d '/' -f 1`
-	curl --retry 10 --retry-delay 3 --retry-max-time 30 -u "admin:$harborAdminPw" -X POST http://$imgRepo/api/projects -H "accept: application/json" -H "Content-Type: application/json" -d "{\"project_name\": \"$projName\", \"metadata\": { \"public\": \"true\" }}"
-	if [[ $? -ne 0 ]]; then
-	    echo "Failed to create project $projName in harbor"
-	    exit 1
-	fi
-	sleep 1
-    docker push $newImage
-	if [[ $? -ne 0 ]]; then
-	    echo "Failed to push image $newImage into harbor"    
-	    exit 1
-	fi
+        projName=`echo $proj | cut -d '/' -f 1`
+        curl --retry 10 --retry-delay 3 --retry-max-time 30 -u "admin:$harborAdminPw" -X POST http://$imgRepo/api/projects -H "accept: application/json" -H "Content-Type: application/json" -d "{\"project_name\": \"$projName\", \"metadata\": { \"public\": \"true\" }}"
+        if [[ $? -ne 0 ]]; then
+            echo "Failed to create project $projName in harbor"
+            exit 1
+        fi
+        sleep 1
+        docker push $newImage
+        if [[ $? -ne 0 ]]; then
+            echo "Failed to push image $newImage into harbor"
+            exit 1
+        fi
     fi
     docker rmi $oldInfo $newImage
     rm -f $imgPath/$i

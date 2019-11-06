@@ -83,7 +83,8 @@ fi
 
 echo_task "load onecache image"
 if [[ $skipped -ne 1 ]]; then
-    docker load < $imgPath/onecache.tar
+    image=`ls $imgPath | grep onecache`
+    docker load < $imgPath/$image
     docker tag onecache $imgRepo/library/onecache
 fi
 
@@ -111,7 +112,8 @@ fi
 
 echo_task "start chartmuseum"
 if [[ $skipped -ne 1 ]]; then
-    docker load < $imgPath/chartmuseum.latest.tar
+    image=`ls $imgPath | grep chartmuseum`
+    docker load < $imgPath/$image
     docker tag chartmuseum/chartmuseum $imgRepo/chartmuseum/chartmuseum
     bash $scriptPath/start_chartmuseum.sh
 fi

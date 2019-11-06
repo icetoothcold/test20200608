@@ -20,24 +20,7 @@ for ip in ${hostIPs[@]}; do
 done
 
 echo "insert repos IP to /etc/hosts"
-for ip in ${hostIPs[@]}; do
-    res=`ssh root@$ip "grep -c \"$imageRepoVIP.*$imgRepo\" /etc/hosts"`
-    if [[ $res -ne 1 ]]; then
-        ssh root@$ip "echo $imageRepoVIP $imgRepo >> /etc/hosts"
-    fi
-    res=`ssh root@$ip "grep -c \"$pkgRepoVIP.*$pkgRepoHost\" /etc/hosts"`
-    if [[ $res -ne 1 ]]; then
-        ssh root@$ip "echo $pkgRepoVIP $pkgRepoHost >> /etc/hosts"
-    fi
-    res=`ssh root@$ip "grep -c \"$chartRepoVIP.*$chartRepoHost\" /etc/hosts"`
-    if [[ $res -ne 1 ]]; then
-        ssh root@$ip "echo $chartRepoVIP $chartRepoHost >> /etc/hosts"
-    fi
-    res=`ssh root@$ip "grep -c \"$ldapVIP.*$ldapDomain\" /etc/hosts"`
-    if [[ $res -ne 1 ]]; then
-        ssh root@$ip "echo $ldapVIP $ldapDomain >> /etc/hosts"
-    fi
-done
+insert_infra_hosts
 
 echo "backup host repo, and install private repo"
 for ip in ${hostIPs[@]}; do

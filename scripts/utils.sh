@@ -331,3 +331,27 @@ function get_all_infra_ips
 {
     get_infra_ips "${imgRepoHosts[@]} ${ldapHosts[@]} ${haproxyHosts[@]} ${pkgRepoHosts[@]}"
 }
+
+
+function insert_infra_hosts
+{
+    for ip in ${hostIPs[@]}; do
+        vip=""
+        repo=""
+        for item in $imageRepoVIP $imgRepo $pkgRepoVIP $pkgRepoHost $chartRepoVIP $chartRepoHost $ldapVIP $ldapDomain; do
+            if [[ $vip == "" ]]; then
+                vip=$item
+                continue
+            fi
+            repo=$item
+            count=`ssh root@$ip "grep -c \"\s$repo\" /etc/hosts"`
+            if [[ $count -lt 1 ]]; then
+                ssh root@$ip "echo $vip $repo >> /etc/hosts"
+            elif [[ $count -gt 1 ]]; then
+                ssh root@$ip "sed -i 's/^.*$repo$//g' /etc/hosts && echo $vip $repo >> /etc/hosts"
+            fi
+            vip=""
+            repo=""
+        done
+    done
+}

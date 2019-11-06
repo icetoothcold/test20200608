@@ -181,22 +181,6 @@ if [[ $skipped -ne 1 ]]; then
     helm init --client-only --stable-repo-url $chartRepo/$localInfraChartRepo
 fi
 
-echo_task "add ExecStartPost to docker service"
-if [[ $skipped -ne 1 ]]; then
-    grep -q "repo_startpost.sh" /usr/lib/systemd/system/docker.service
-    if [[ $? -ne 0 ]]; then
-        sed -i "/^Restart=/aExecStartPost=\/usr\/bin\/bash $scriptPath\/repo_startpost.sh" /usr/lib/systemd/system/docker.service
-    fi
-set -x
-    systemctl daemon-reload
-    systemctl restart docker
-set +x
-    if [[ `verify_repo_up "repo"` -ne 1 ]]; then
-	    echo "After 1 min, local repo up detect failed..."
-	    exit 1
-    fi
-fi
-
 echo_task "install helm push plugin"
 if [[ $skipped -ne 1 ]]; then
     curl $pkgRepo/helm-push.tar -o $rootPath/helm-push.tar

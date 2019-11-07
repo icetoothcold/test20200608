@@ -29,3 +29,10 @@ kube_cpu_reserved:
 # like 200M
 kube_master_memory_reserved: ""
 kube_memory_reserved: ""
+
+
+# experimental
+# try to add calico 3.10 support
+#
+# calicoctlVersion: "v3.10.0"
+# calicocniVersion: "v3.10"

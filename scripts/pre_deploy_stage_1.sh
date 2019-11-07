@@ -55,10 +55,9 @@ jinja2 $templatePath/k8s-cluster.yml data.tmp$ts --format=yaml >> k8s-cluster.ym
 cat docker.yml.tmp$ts >> inventory/$clusterName/group_vars/all/docker.yml
 cat k8s-cluster.yml.tmp$ts >> inventory/$clusterName/group_vars/k8s-cluster/k8s-cluster.yml
 
-if [[ `grep -c '^downloads:' roles/download/defaults/main.yml` -eq 1 ]]; then
-    cat roles/download/defaults/main.yml $templatePath/download_main.yml >> download_main.yml.tmp$ts
-    diff_and_cp download_main.yml.tmp$ts roles/download/defaults/main.yml
-fi
+sed -i '/^###- CUSTEMIZE FIELDS BEGIN -###$/,$d' roles/download/defaults/main.yml
+cat roles/download/defaults/main.yml $templatePath/download_main.yml >> download_main.yml.tmp$ts
+diff_and_cp download_main.yml.tmp$ts roles/download/defaults/main.yml
 
 rm -f data.tmp$ts docker.yml.tmp$ts k8s-cluster.yml.tmp$ts download_main.yml.tmp$ts
 

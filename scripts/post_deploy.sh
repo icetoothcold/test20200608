@@ -37,15 +37,22 @@ if [[ $skipped -ne 1 ]]; then
     done
 fi
 
-echo_task "install ingress/traefik"
+echo_task "install ingress"
 if [[ $skipped -ne 1 ]]; then
-    ssh root@$masterA "helm repo update; helm del --purge ingress-tfk; helm install infra/traefik --name ingress-tfk --namespace kube-system"
+    userPrefer=`cat $clusterFile | awk '/^ingress_prefer:/{print $2}'`
+    if [[ -z $userPrefer || $userPrefer == "" ]]; then
+        userPrefer=$defaultIngress
+    fi
+    if [[ `grep supportedIngressControllers $versionPath/common | grep -c $userPrefer` -eq 0 ]]; then
+        userPrefer=$defaultIngress
+    fi
+    if [[ $userPrefer == "traefik" ]]; then
+        ssh root@$masterA "helm repo update; helm del --purge ingress-tfk; helm install infra/traefik --name ingress-tfk --namespace kube-system"
+    elif [[ $userPrefer == "nginx" ]]; then
+        ssh root@$masterA "helm repo update; helm del --purge nginx-ingress; helm install infra/nginx-ingress --set-string controller.nodeSelector.'node-role\.kubernetes\.io\/master=' --name nginx-ingress --namespace kube-system"
+    fi
 fi
 
-echo_task "install keepalived-vip"
-if [[ $skipped -ne 1 ]]; then
-    ssh root@$masterA "helm repo update; helm del --purge kpvip; helm install infra/keepalived-vip --name kpvip --namespace kube-system"
-fi
 
 echo_task "install kube-oidc"
 if [[ $skipped -ne 1 ]]; then

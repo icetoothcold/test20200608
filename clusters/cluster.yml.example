@@ -36,3 +36,6 @@ kube_memory_reserved: ""
 #
 # calicoctlVersion: "v3.10.0"
 # calicocniVersion: "v3.10"
+
+
+# ingress_prefer: "nginx"

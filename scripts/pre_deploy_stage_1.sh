@@ -76,6 +76,8 @@ diff_and_cp $templatePath/coredns-config.yml.j2 roles/kubernetes-apps/ansible/te
 diff_and_cp $templatePath/nodelocaldns-config.yml.j2 roles/kubernetes-apps/ansible/templates/nodelocaldns-config.yml.j2
 diff_and_cp $templatePath/coredns-deployment.yml.j2 roles/kubernetes-apps/ansible/templates/coredns-deployment.yml.j2
 
+# for oracle, replace bootstrap-os main.yml
+diff_and_cp $templatePath/bootstrap-os_main.yml roles/bootstrap-os/tasks/main.yml
 
 popd
 

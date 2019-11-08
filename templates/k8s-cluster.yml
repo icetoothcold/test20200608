@@ -16,7 +16,7 @@ etcd_deployment_type: docker
 kubelet_deployment_type: host
 helm_deployment_type: host
 kubernetes_audit: false
-dynamic_kubelet_configuration: false
+dynamic_kubelet_configuration: true
 # pod security policy (RBAC must be enabled either by having 'RBAC' in authorization_modes or kubeadm enabled)
 podsecuritypolicy_enabled: false
 
@@ -89,7 +89,7 @@ kube_oidc_url: "https://dex.{{ clusterName }}.io/dex"
 kube_oidc_client_id: loginapp
 kube_oidc_ca_file: "/etc/ssl/dex/ca.pem"
 kube_oidc_username_claim: name
-kube_oidc_username_prefix: "oidc:"
+kube_oidc_username_prefix: "oidc_"
 kube_oidc_groups_claim: groups
 cluster_api_vip: "{{ vip }}"
 kube_oidc_dex_host: "{{ dexDNS }}"

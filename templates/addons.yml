@@ -1,4 +1,4 @@
-dashboard_enabled: false
+dashboard_enabled: true
 helm_enabled: true
 
 # Cert manager deployment

@@ -33,7 +33,7 @@ fi
 
 docker rm -f ldap
 docker run --name ldap -d --hostname $hostname --env LDAP_REPLICATION=true \
-  -p $ldapHABackendPort:389 \
+  -p 389:389 \
   --env LDAP_ORGANISATION=$ldapOrgName \
   --env LDAP_DOMAIN=$ldapDomain \
   --env LDAP_ADMIN_PASSWORD=$ldapRootPW \

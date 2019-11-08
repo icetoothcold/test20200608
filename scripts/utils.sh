@@ -44,7 +44,6 @@ ldapDomain=`cat $rootPath/infra.yml | awk -F'"' '/ldapDomain/{print $2}'`
 ldapRootPW=`cat $rootPath/infra.yml | awk -F'"' '/ldapRootPW/{print $2}'`
 ldapBindDN=`cat $rootPath/infra.yml | awk -F'"' '/ldapBindDN/{print $2}'`
 ldapVIP=`for i in $(cat $rootPath/infra.yml | awk -F'"' '/infraVIPs/{print $2}'); do echo $i | awk -F ':' '/ldap/{print $2}'; done`
-ldapHABackendPort=`cat $rootPath/infra.yml | awk '/ldapHABackendPort/{print $2}'`
 ldapHosts=`cat $rootPath/infra.yml | awk -F'"' '/ldapHosts/{print $2}'`
 
 

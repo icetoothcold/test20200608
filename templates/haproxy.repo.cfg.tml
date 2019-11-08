@@ -34,8 +34,8 @@ backend ldap_be
     mode tcp
 {% for ip in ldapIPs.split(' ') %}
     {% if ldapIPs.split(' ').index(ip) == 0 %}
-    server      ldap_{{ ip.replace('.', '_') }}  {{ ip }}:{{ ldapHABackendPort }} check weight 100
+    server      ldap_{{ ip.replace('.', '_') }}  {{ ip }}:389 check weight 100
     {% else %}
-    server      ldap_{{ ip.replace('.', '_') }}  {{ ip }}:{{ ldapHABackendPort }} check backup weight {{ 100 - ldapIPs.split(' ').index(ip) * 10 }}
+    server      ldap_{{ ip.replace('.', '_') }}  {{ ip }}:389 check backup weight {{ 100 - ldapIPs.split(' ').index(ip) * 10 }}
     {% endif %}
 {% endfor %}

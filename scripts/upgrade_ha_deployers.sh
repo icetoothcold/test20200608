@@ -56,7 +56,7 @@ fi
 echo_task "start ldap ha"
 if [[ $skipped -ne 1 ]]; then
     bash $scriptPath/start_ldap_ha.sh
-    if [[ `verify_repo_up "ldap" "$myIP:$ldapHABackendPort"` -ne 1 ]]; then
+    if [[ `verify_repo_up "ldap" "$myIP:389"` -ne 1 ]]; then
         echo "After 1 min, local ldap up detect failed..."
         exit 1
     fi
@@ -148,7 +148,7 @@ fi
 echo_task "peer: start ldap ha"
 if [[ $skipped -ne 1 ]]; then
     ssh root@$peerIP "bash $scriptPath/start_ldap_ha.sh"
-    if [[ `verify_repo_up "ldap" "$peerIP:$ldapHABackendPort"` -ne 1 ]]; then
+    if [[ `verify_repo_up "ldap" "$peerIP:389"` -ne 1 ]]; then
         echo "After 1 min, local ldap up detect failed..."
         exit 1
     fi

@@ -225,7 +225,7 @@ echo_task "start ldap"
 if [[ $skipped -ne 1 ]]; then
     for ip in `get_infra_ips "${ldapHosts[@]}"`; do
         ssh root@$ip "bash $scriptPath/start_ldap_ha.sh"
-        if [[ `verify_repo_up "ldap" "$ip:$ldapHABackendPort"` -ne 1 ]]; then
+        if [[ `verify_repo_up "ldap" "$ip:389"` -ne 1 ]]; then
             echo "After 1 min, local ldap up detect failed..."
             exit 1
         fi

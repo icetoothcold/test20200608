@@ -46,7 +46,7 @@ ldapBindDN=`cat $rootPath/infra.yml | awk -F'"' '/ldapBindDN/{print $2}'`
 ldapVIP=`for i in $(cat $rootPath/infra.yml | awk -F'"' '/infraVIPs/{print $2}'); do echo $i | awk -F ':' '/ldap/{print $2}'; done`
 ldapHosts=`cat $rootPath/infra.yml | awk -F'"' '/ldapHosts/{print $2}'`
 
-defaultIngress=`cat rootPath/infra.yml | awk -F'"' '/^defaultIngress:/print $2}'`
+defaultIngress=`cat $rootPath/infra.yml | awk -F'"' '/^defaultIngress:/{print $2}'`
 
 tasksNum=`grep -c '^echo_task ' $0`
 taskId=0

@@ -26,7 +26,11 @@ fi
 
 echo_task "generate ssh keys"
 if [[ $skipped -ne 1 ]]; then
-    ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
+    if [[ ! -f ~/.ssh/id_rsa.pub || ! -f ~/.ssh/id_rsa || `diff <( ssh-keygen -yef ~/.ssh/id_rsa.pub ) <( ssh-keygen -yef ~/.ssh/id_rsa ) | wc -l` -ne 0 ]]; then
+        ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
+    else
+        echo -ne "\nssh rsa key already exists, nothing to do..."
+    fi
 fi
 
 echo_task "backup local current yum repos"

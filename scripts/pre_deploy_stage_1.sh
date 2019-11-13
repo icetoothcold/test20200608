@@ -104,6 +104,9 @@ else
     cp $templatePath/coredns-secrets.yml.j2 roles/kubernetes-apps/ansible/templates/coredns-secrets.yml.j2
 fi
 
+# config node role label
+diff_and_cp $templatePath/kubelet.env.v1beta1.j2 roles/kubernetes/node/templates/kubelet.env.v1beta1.j2
+
 rm -f data.$tmp
 
 popd

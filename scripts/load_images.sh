@@ -45,7 +45,7 @@ for i in `ls $imgPath/*.tar`; do
         :
     elif [[ $level -eq 1 ]]; then
         proj="library/$site"
-    elif [[ $site == "k8s.gcr.io" ]]; then
+    elif [[ `echo $site | grep -c "\."` -ne 0 ]]; then
         proj=`echo $site | sed 's/\./_/g'`"/"$proj
     else
         proj="$site/$proj"

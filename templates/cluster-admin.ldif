@@ -1,0 +1,9 @@
+dn: cn=administrator,ou=People,dc=local,dc=ldap,dc=io
+changetype: add
+objectClass: person
+objectClass: inetOrgPerson
+sn: administrator
+cn: administrator
+mail: administrator@notexist.com
+uid: administrator
+userpassword: CarryOnMyWaywardSon

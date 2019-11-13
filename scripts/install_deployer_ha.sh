@@ -301,9 +301,10 @@ if [[ $skipped -ne 1 ]]; then
     rm -f $rootPath/helm-push.tar
 fi
 
-echo_task "add tests users into ldap"
+echo_task "add tests users and administrator into ldap"
 if [[ $skipped -ne 1 ]]; then
     ldapadd -x -H ldap://$ldapDomain:389 -D "cn=admin,$ldapBindDN" -w $ldapRootPW -f $rootPath/tests/dex-example-config-ldap.ldif
+    ldapadd -x -H ldap://$ldapDomain:389 -D "cn=admin,$ldapBindDN" -w $ldapRootPW -f $templatePath/cluster-admin.ldif
 fi
 
 #echo_task ""

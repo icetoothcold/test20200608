@@ -94,3 +94,4 @@ kube_oidc_groups_claim: groups
 cluster_api_vip: "{{ vip }}"
 kube_oidc_dex_host: "{{ dexDNS }}"
 kube_oidc_loginapp_host: "{{ loginappDNS }}"
+platform_dns_root_domain: "{{ platFormDNSRootDomains }}"

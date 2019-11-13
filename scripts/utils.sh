@@ -47,6 +47,7 @@ ldapVIP=`for i in $(cat $rootPath/infra.yml | awk -F'"' '/infraVIPs/{print $2}')
 ldapHosts=`cat $rootPath/infra.yml | awk -F'"' '/ldapHosts/{print $2}'`
 
 defaultIngress=`cat $rootPath/infra.yml | awk -F'"' '/^defaultIngress:/{print $2}'`
+platformDNSRootDomains=`cat $rootPath/infra.yml | awk -F'"' '/^platformDNSRootDomains:/{print $2}'`
 
 tasksNum=`grep -c '^echo_task ' $0`
 taskId=0
@@ -246,9 +247,16 @@ function get_master_ips_string
 }
 
 
+function get_etcd_ips_string
+{
+    # return a string, not an array, but it's ok for for-loop
+    python3 -c "import yaml; all=yaml.safe_load(open('$inventoryPath/$1/hosts.yml'))['all']; print(' '.join([all['hosts'][host]['ip'] for host in all['hosts'] if host in all['children']['etcd']['hosts']]))"
+}
+
+
 function diff_and_cp
 {
-    diff -q $1 $2
+    diff -q $1 $2 > /dev/null
     if [[ $? -ne 0 ]]; then
         cp $1 $2
     fi
@@ -299,10 +307,19 @@ function get_infra_ips
 
 function ssh_authorize
 {
+    ping -c3 -w3 $1 > /dev/null 2>&1
+    if [[ $? -ne 0 ]]; then
+        echo "IP $1 is not reachable, failed to do ssh authorize"
+        exit 1
+    fi
     sshpass -p foo ssh -o StrictHostKeyChecking=no root@$1 "exit"
     if [[ $? -ne 0 ]]; then
         ssh-keyscan $1 >> ~/.ssh/known_hosts
         sshpass -p $2 ssh-copy-id -f root@$1
+        if [[ $? -ne 0 ]]; then
+            echo "Failed to do ssh authorized with IP $1"
+            exit 1
+        fi
     fi
 }
 

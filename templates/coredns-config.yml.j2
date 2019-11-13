@@ -12,10 +12,10 @@ data:
         errors
         health
         ready
-        hosts /hosts {
-          {{ cluster_api_vip }} {{ kube_oidc_dex_host }}
-          {{ cluster_api_vip }} {{ kube_oidc_loginapp_host }}
-          reload "10s"
+        etcd {{ platform_dns_root_domain }} {
+          path /skydns
+          endpoint {{ coredns_etcd_plugin_endpoints }}
+          tls /tls/tls.crt /tls/tls.key /tls-ca/ca.pem
           fallthrough
         }
         kubernetes {{ dns_domain }} in-addr.arpa ip6.arpa {

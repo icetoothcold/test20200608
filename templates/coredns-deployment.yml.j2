@@ -69,8 +69,10 @@ spec:
         volumeMounts:
         - name: config-volume
           mountPath: /etc/coredns
-        - mountPath: /hosts
-          name: hosts
+        - name: tls
+          mountPath: /tls
+        - name: ca
+          mountPath: /tls-ca
         ports:
         - containerPort: 53
           name: dns
@@ -113,7 +115,11 @@ spec:
             items:
             - key: Corefile
               path: Corefile
-        - name: hosts
-          hostPath:
-            path: /etc/hosts
-            type: ""
+        - name: tls
+          secret:
+            defaultMode: 420
+            secretName: etcd
+        - name: ca
+          secret:
+            defaultMode: 420
+            secretName: etcd-ca

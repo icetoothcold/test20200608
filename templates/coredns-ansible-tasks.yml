@@ -1,0 +1,89 @@
+---
+- name: Kubernetes Apps additional | Slurp Configuration Etcd Cacert
+  slurp:
+    src: "{{ etcd_cert_dir }}/ca.pem"
+  register: kube_etcd_cacert_file
+  when: inventory_hostname == groups['kube-master'][0]
+  tags:
+    - coredns
+
+- name: Kubernetes Apps additional | Slurp Configuration Etcd Cert
+  slurp:
+    src: "{{ etcd_cert_dir }}/node-{{ inventory_hostname }}.pem"
+  register: kube_etcd_cert_file
+  when: inventory_hostname == groups['kube-master'][0]
+  tags:
+    - coredns
+
+- name: Kubernetes Apps additional | Slurp Configuration Etcd Key
+  slurp:
+    src: "{{ etcd_cert_dir }}/node-{{ inventory_hostname }}-key.pem"
+  register: kube_etcd_key_file
+  when: inventory_hostname == groups['kube-master'][0]
+  tags:
+    - coredns
+
+- name: Kubernetes Apps additional | Encode Configuration Etcd Cacert
+  set_fact:
+    etcd_cacert_base64: "{{ kube_etcd_cacert_file.content }}"
+  when: inventory_hostname == groups['kube-master'][0]
+  tags:
+    - coredns
+
+- name: Kubernetes Apps additional | Encode Configuration Etcd Cert
+  set_fact:
+    etcd_cert_base64: "{{ kube_etcd_cert_file.content }}"
+  when: inventory_hostname == groups['kube-master'][0]
+  tags:
+    - coredns
+
+- name: Kubernetes Apps additional | Encode Configuration Etcd Key
+  set_fact:
+    etcd_key_base64: "{{ kube_etcd_key_file.content }}"
+  when: inventory_hostname == groups['kube-master'][0]
+  tags:
+    - coredns
+
+- name: Kubernetes Apps | Lay Down CoreDNS Template
+  action: "{{ item.module }}"
+  args:
+    src: "{{ item.file }}{% if item.module == 'template' %}.j2{% endif %}"
+    dest: "{{ kube_config_dir }}/{{ item.file }}"
+  with_items:
+    - { name: coredns, module: template, file: coredns-config.yml, type: configmap }
+    - { name: coredns, module: template, file: coredns-secrets.yml, type: secret }
+    - { name: coredns, module: copy, file: coredns-sa.yml, type: sa }
+    - { name: coredns, module: template, file: coredns-deployment.yml, type: deployment }
+    - { name: coredns, module: template, file: coredns-svc.yml, type: svc }
+    - { name: coredns, module: copy, file: coredns-clusterrole.yml, type: clusterrole }
+    - { name: coredns, module: copy, file: coredns-clusterrolebinding.yml, type: clusterrolebinding }
+    - { name: dns-autoscaler, module: copy, file: dns-autoscaler-sa.yml, type: sa }
+    - { name: dns-autoscaler, module: copy, file: dns-autoscaler-clusterrole.yml, type: clusterrole }
+    - { name: dns-autoscaler, module: copy, file: dns-autoscaler-clusterrolebinding.yml, type: clusterrolebinding }
+    - { name: dns-autoscaler, module: template, file: dns-autoscaler.yml, type: deployment }
+  register: coredns_manifests
+  vars:
+    clusterIP: "{{ skydns_server }}"
+  when:
+    - dns_mode in ['coredns', 'coredns_dual']
+    - inventory_hostname == groups['kube-master'][0]
+  tags:
+    - coredns
+
+- name: Kubernetes Apps | Lay Down Secondary CoreDNS Template
+  template:
+    src: "{{ item.src }}.j2"
+    dest: "{{ kube_config_dir }}/{{ item.file }}"
+  with_items:
+    - { name: coredns, src: coredns-deployment.yml, file: coredns-deployment-secondary.yml, type: deployment }
+    - { name: coredns, src: coredns-svc.yml, file: coredns-svc-secondary.yml, type: svc }
+    - { name: dns-autoscaler, src: dns-autoscaler.yml, file: coredns-autoscaler-secondary.yml, type: deployment }
+  register: coredns_secondary_manifests
+  vars:
+    clusterIP: "{{ skydns_server_secondary }}"
+    coredns_ordinal_suffix: "-secondary"
+  when:
+    - dns_mode == 'coredns_dual'
+    - inventory_hostname == groups['kube-master'][0]
+  tags:
+    - coredns

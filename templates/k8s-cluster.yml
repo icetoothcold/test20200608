@@ -89,9 +89,9 @@ kube_oidc_url: "https://dex.{{ clusterName }}.io/dex"
 kube_oidc_client_id: loginapp
 kube_oidc_ca_file: "/etc/ssl/dex/ca.pem"
 kube_oidc_username_claim: name
-kube_oidc_username_prefix: "oidc_"
+kube_oidc_username_prefix: "{{ oidcUsernamePrefix }}"
 kube_oidc_groups_claim: groups
 cluster_api_vip: "{{ vip }}"
 kube_oidc_dex_host: "{{ dexDNS }}"
 kube_oidc_loginapp_host: "{{ loginappDNS }}"
-platform_dns_root_domain: "{{ platFormDNSRootDomains }}"
+platform_dns_root_domain: "{{ platformDNSRootDomains }}"

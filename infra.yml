@@ -1,33 +1,62 @@
-myIP: "192.168.100.153"
+# current host ip where to run install_deployer, like 192.168.100.100
+myIP: ""
+
+# will be used as image repo domain name
 imageRepo: "local.harbor.io"
+
+# will be used as yum repo and pypi repo name
+# pypi repo use the same domain name with yum repo
 pkgRepo: "http://local.repo.io:8080"
 pypiPort: 8090
+
+#
 chartRepo: "http://local.chart.io:8070"
-# harbor
+
+# harbor is default image repo we will use
 harborAdminPw: "Harbor12345"
 harborGcCron: "0 0 */2 * * *"
 harborShareVolume: "/nfsdata"
+
+# where infra charts are put in chart repo
 # with multitenancy support
 localInfraChartRepo: "local/infra"
+
 # ldap
 ldapOrgName: "test"
 ldapDomain: "local.ldap.io"
 ldapBindDN: "dc=local,dc=ldap,dc=io"
 ldapRootPW: "ldapAdmin"
+
+# oidc
 dexDNS: "dex.local.io"
 loginappDNS: "loginapp.local.io"
+oidcUsernamePrefix: "oidc_"
+
 # HA
-peerIP: "192.168.100.213"
-peerRootPW: "zea345lot"
-pkgRepoHosts: "192.168.100.153:zea345lot"
-imgRepoHosts: "192.168.100.153,192.168.100.213:zea345lot"
-ldapHosts: "192.168.100.153,192.168.100.213:zea345lot"
-haproxyHosts: "192.168.100.153,192.168.100.213:zea345lot"
+peerIP: ""
+peerRootPW: ""
+# the following the lines use the same format, <IP1>[,<IPn..>]:PASSWORD1 <IPx>[,<IPz..>]:PASSWORDn
+# e.g. 1.1.1.1,2.2.2.2:theSamePassword1 3.3.3.3:anotherPassword
+pkgRepoHosts: ""
+imgRepoHosts: ""
+ldapHosts: ""
+haproxyHosts: ""
+
 # keepalived
 vipInterface: "eth0"
 keepalivedAdvertIntv: "2"
 keepalivedVRID: "123"
 infraVIPs: "imageRepo,ldap:192.168.100.151 pkgRepo,chartRepo:192.168.100.152"
 keepalivedTag: "v0.2"
+
+# ingress
 defaultIngress: "nginx"
-platFormDNSRootDomains: "io"
+
+# coredns
+platformDNSRootDomains: "io"
+
+# prometheus
+enablePrometheus: "false"
+
+# etcd tool
+enableEtcdTool: "false"

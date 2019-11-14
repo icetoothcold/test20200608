@@ -45,9 +45,11 @@ ldapRootPW=`cat $rootPath/infra.yml | awk -F'"' '/ldapRootPW/{print $2}'`
 ldapBindDN=`cat $rootPath/infra.yml | awk -F'"' '/ldapBindDN/{print $2}'`
 ldapVIP=`for i in $(cat $rootPath/infra.yml | awk -F'"' '/infraVIPs/{print $2}'); do echo $i | awk -F ':' '/ldap/{print $2}'; done`
 ldapHosts=`cat $rootPath/infra.yml | awk -F'"' '/ldapHosts/{print $2}'`
+oidcUsernamePrefix=`cat $rootPath/infra.yml | awk -F'"' '/^oidcUsernamePrefix:/{print $2}'`
 
 defaultIngress=`cat $rootPath/infra.yml | awk -F'"' '/^defaultIngress:/{print $2}'`
-platformDNSRootDomains=`cat $rootPath/infra.yml | awk -F'"' '/^platformDNSRootDomains:/{print $2}'`
+
+enablePrometheus=`cat $rootPath/infra.yml | awk -F'"' '/^enablePrometheus:/{print $2}'`
 
 tasksNum=`grep -c '^echo_task ' $0`
 taskId=0

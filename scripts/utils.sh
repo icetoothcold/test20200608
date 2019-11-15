@@ -50,6 +50,7 @@ oidcUsernamePrefix=`cat $rootPath/infra.yml | awk -F'"' '/^oidcUsernamePrefix:/{
 defaultIngress=`cat $rootPath/infra.yml | awk -F'"' '/^defaultIngress:/{print $2}'`
 
 enablePrometheus=`cat $rootPath/infra.yml | awk -F'"' '/^enablePrometheus:/{print $2}'`
+enableEtcdTool=`cat $rootPath/infra.yml | awk -F'"' '/^enableEtcdTool:/{print $2}'`
 
 tasksNum=`grep -c '^echo_task ' $0`
 taskId=0

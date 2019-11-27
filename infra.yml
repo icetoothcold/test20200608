@@ -1,4 +1,5 @@
-# current host ip where to run install_deployer, like 192.168.100.100
+# current host ip where to run install_deployer, like 192.168.100.100.
+# If omit, will use `ip r get 8.8.8.8` to determine.
 myIP: ""
 
 # will be used as image repo domain name
@@ -11,21 +12,31 @@ pypiPort: 8090
 
 #
 chartRepo: "http://local.chart.io:8070"
+# with multitenancy support
+localInfraChartRepo: "local/infra"
+seperateChartmuseum: "false"
 
 # harbor is default image repo we will use
 harborAdminPw: "Harbor12345"
 harborGcCron: "0 0 */2 * * *"
 harborShareVolume: "/nfsdata"
-
-# where infra charts are put in chart repo
-# with multitenancy support
-localInfraChartRepo: "local/infra"
+harborWithClair: "false"
+harborWithChartmusuem: "false"
+harborVersion: "v1.9.2"
+harborDataVolume: "/data"
 
 # ldap
 ldapOrgName: "test"
 ldapDomain: "local.ldap.io"
 ldapBindDN: "dc=local,dc=ldap,dc=io"
 ldapRootPW: "ldapAdmin"
+
+# the following the lines use the same format, <IP1>[,<IPn..>]:PASSWORD1 <IPx>[,<IPz..>]:PASSWORDn
+# e.g. 1.1.1.1,2.2.2.2:theSamePassword1 3.3.3.3:anotherPassword
+pkgRepoHosts: ""
+imgRepoHosts: ""
+ldapHosts: ""
+haproxyHosts: ""
 
 # oidc
 dexDNS: "dex.local.io"
@@ -35,12 +46,6 @@ oidcUsernamePrefix: "oidc_"
 # HA
 peerIP: ""
 peerRootPW: ""
-# the following the lines use the same format, <IP1>[,<IPn..>]:PASSWORD1 <IPx>[,<IPz..>]:PASSWORDn
-# e.g. 1.1.1.1,2.2.2.2:theSamePassword1 3.3.3.3:anotherPassword
-pkgRepoHosts: ""
-imgRepoHosts: ""
-ldapHosts: ""
-haproxyHosts: ""
 
 # keepalived
 vipInterface: "eth0"
@@ -60,3 +65,6 @@ enablePrometheus: "false"
 
 # etcd tool
 enableEtcdTool: "false"
+
+kube_apiserver_node_port_range
+./roles/kubernetes/master/defaults/main/main.yml

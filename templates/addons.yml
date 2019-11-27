@@ -1,5 +1,5 @@
-dashboard_enabled: true
-helm_enabled: true
+dashboard_enabled: false
+helm_enabled: false
 
 # Cert manager deployment
 cert_manager_enabled: false

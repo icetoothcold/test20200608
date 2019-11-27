@@ -1,5 +1,34 @@
+# 1.15.0
 92bfcf04677d79170f8e44a470b6c0ed5f47431c
 Author: w33dw0r7d <w33dw0r7d@gmail.com>
 Date:   Wed Jul 31 21:26:15 2019 +0300
 
     Add CoreDNS endpoint_pod_names option (#5012)
+
+
+# 1.15.5
+commit 73097aa39d492d869b90d61c654c63e4babeb951 (HEAD -> release-2.11, origin/release-2.11)
+Author: Hugo Blom <bl0m1@users.noreply.github.com>
+Date:   Wed Oct 30 09:56:52 2019 +0100
+
+    Preparing a 2.11.1 release - kubernetes 1.15.5 (#5278)
+
+    * add checksums for 1.15.4 and 1.15.5 and set 1.15.5 to default
+
+    * Upgrade nodelocaldns to 1.15.5 (#5191)
+
+    * do not rebase from master for 2.11 release branch
+
+
+# 1.16.2
+commit 8c15db53b26998303a52750b4b6900009d63659f
+Author: Bjoern Teipel <bjoern.teipel@rackspace.com>
+Date:   Mon Nov 11 05:53:41 2019 -0600
+
+    Fix helm for Kubernetes 1.16.2 (#5332)
+
+    Since upgrading k8s beyond 1.16.0 version, helm init does
+    no longer work with helm < 2.16.0 due to
+    https://github.com/helm/helm/issues/6374
+
+    This PR closes issue #5331

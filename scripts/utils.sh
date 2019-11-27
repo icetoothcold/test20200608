@@ -9,6 +9,10 @@ templatePath=$rootPath/templates
 
 
 myIP=`cat $rootPath/infra.yml | awk -F'"' '/myIP/{print $2}'`
+if [[ -z $myIP ]]; then
+    myIP=`ip r get 8.8.8.8 | awk '{if(NR=1)print $7}'`
+fi
+
 peerIP=`cat $rootPath/infra.yml | awk -F'"' '/peerIP/{print $2}'`
 peerRootPW=`cat $rootPath/infra.yml | awk -F'"' '/peerRootPW/{print $2}'`
 
@@ -19,6 +23,11 @@ keepalivedVRID=`cat $rootPath/infra.yml | awk -F'"' '/keepalivedVRID/{print $2}'
 keepalivedTag=`cat $rootPath/infra.yml | awk -F'"' '/keepalivedTag/{print $2}'`
 
 imgRepo=`cat $rootPath/infra.yml | awk -F'"' '/^imageRepo:/{print $2}'`
+imageRepoSecure=`cat $rootPath/infra.yml | awk -F'"' '/^imageRepoSecure:/{print $2}'`
+if [[ $imageRepoSecure == "true" ]]; then
+    echo "Secure image repo is not supported yet"
+    exit 1
+fi
 imageRepoVIP=`for i in $(cat $rootPath/infra.yml | awk -F'"' '/infraVIPs/{print $2}'); do echo $i | awk -F ':' '/imageRepo/{print $2}'; done`
 imgRepoHosts=`cat $rootPath/infra.yml | awk -F'"' '/imgRepoHosts/{print $2}'`
 
@@ -38,6 +47,10 @@ localInfraChartRepo=`cat $rootPath/infra.yml | awk -F'"' '/localInfraChartRepo/{
 harborAdminPw=`cat $rootPath/infra.yml | awk -F'"' '/harborAdminPw/{print $2}'`
 harborGcCron=`cat $rootPath/infra.yml | awk -F'"' '/harborGcCron/{print $2}'`
 harborShareVolume=`cat $rootPath/infra.yml | awk -F'"' '/harborShareVolume/{print $2}'`
+harborWithClair=`cat $rootPath/infra.yml | awk -F'"' '/^harborWithClair:/{print $2}'`
+harborWithChartmusuem=`cat $rootPath/infra.yml | awk -F'"' '/^harborWithChartmusuem:/{print $2}'`
+harborVersion=`cat $rootPath/infra.yml | awk -F'"' '/^harborVersion:/{print $2}'`
+harborDataVolume=`cat $rootPath/infra.yml | awk -F'"' '/^harborDataVolume:/{print $2}'`
 
 ldapOrgName=`cat $rootPath/infra.yml | awk -F'"' '/ldapOrgName/{print $2}'`
 ldapDomain=`cat $rootPath/infra.yml | awk -F'"' '/ldapDomain/{print $2}'`
@@ -51,6 +64,7 @@ defaultIngress=`cat $rootPath/infra.yml | awk -F'"' '/^defaultIngress:/{print $2
 
 enablePrometheus=`cat $rootPath/infra.yml | awk -F'"' '/^enablePrometheus:/{print $2}'`
 enableEtcdTool=`cat $rootPath/infra.yml | awk -F'"' '/^enableEtcdTool:/{print $2}'`
+seperateChartmuseum=`cat $rootPath/infra.yml | awk -F'"' '/^seperateChartmuseum:/{print $2}'`
 
 tasksNum=`grep -c '^echo_task ' $0`
 taskId=0
@@ -261,7 +275,7 @@ function diff_and_cp
 {
     diff -q $1 $2 > /dev/null
     if [[ $? -ne 0 ]]; then
-        cp $1 $2
+        cp -f $1 $2
     fi
 }
 
@@ -367,6 +381,8 @@ function insert_infra_hosts
             count=`ssh root@$ip "grep -c \"\s$repo\" /etc/hosts"`
             if [[ $count -lt 1 ]]; then
                 ssh root@$ip "echo $vip $repo >> /etc/hosts"
+            elif [[ $count -eq 1 && `ssh root@$ip "grep -c \"$vip\s$repo\" /etc/hosts"` -ne 1 ]]; then
+                ssh root@$ip "sed -i 's/^.*$repo$/$vip $repo/g' /etc/hosts"
             elif [[ $count -gt 1 ]]; then
                 ssh root@$ip "sed -i 's/^.*$repo$//g' /etc/hosts && echo $vip $repo >> /etc/hosts"
             fi

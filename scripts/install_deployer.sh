@@ -112,10 +112,14 @@ fi
 
 echo_task "start chartmuseum"
 if [[ $skipped -ne 1 ]]; then
-    image=`ls $imgPath | grep chartmuseum`
-    docker load < $imgPath/$image
-    docker tag chartmuseum/chartmuseum $imgRepo/chartmuseum/chartmuseum
-    bash $scriptPath/start_chartmuseum.sh
+    if [[ $seperateChartmuseum == "true" ]]; then
+        image=`ls $imgPath | grep chartmuseum`
+        docker load < $imgPath/$image
+        docker tag chartmuseum/chartmuseum $imgRepo/chartmuseum/chartmuseum
+        bash $scriptPath/start_chartmuseum.sh
+    else
+        echo "Skipped, since seperate chartmuseum is disabled"
+    fi
 fi
 
 echo_task "yum install docker-compose"
@@ -125,13 +129,33 @@ fi
 
 echo_task "install harbor"
 if [[ $skipped -ne 1 ]]; then
-    curl $pkgRepo/harbor-offline-installer-v1.8.1.tgz -o $rootPath/harbor-offline-installer-v1.8.1.tgz
-    tar xf $rootPath/harbor-offline-installer-v1.8.1.tgz -C $rootPath
-    rm -f $rootPath/harbor-offline-installer-v1.8.1.tgz
+    tgzFile=harbor-offline-installer-${harborVersion}.tgz
+    curl $pkgRepo/$tgzFile -o $rootPath/$tgzFile
+    tar xf $rootPath/$tgzFile -C $rootPath
+    rm -f $rootPath/$tgzFile
     pushd $rootPath/harbor
-    sed -i -e "s/^hostname:.*/hostname: $imgRepo/" -e "s/^harbor_admin_password:.*/harbor_admin_password: $harborAdminPw/" harbor.yml
-    ./install.sh
-    rm -f harbor.v1.8.1.tar.gz
+    sed -i -e "s/^hostname:.*/hostname: $imgRepo/" \
+           -e "s/^harbor_admin_password:.*/harbor_admin_password: $harborAdminPw/" \
+           -e "s#^data_volume:.*#data_volume: $harborDataVolume#" harbor.yml
+    docker load < harbor.${harborVersion}.tar.gz
+    withOpts=""
+    if [[ $harborWithClair == "true" ]]; then
+        withOpts="--with-clair"
+    fi
+    if [[ $harborWithChartmusuem == "true" ]]; then
+        withOpts="$withOpts --with-chartmuseum"
+    fi
+    ./prepare $withOpts
+    if [[ `echo $withOpts | grep -c "clair"` -ne 0 ]]; then
+        cp -f $templatePath/harbor_with_clair_db/docker-compose.yml docker-compose.yml
+        cp -f $templatePath/harbor_with_clair_db/config.yaml common/config/clair/config.yaml
+        pushd $imgPath > /dev/null
+            docker load < postgres.9.6.tar
+        popd > /dev/null
+        mkdir $harborDataVolume/clair_db
+        chown `ls -dl $harborDataVolume/database | awk '{print $3":"$4}'` $harborDataVolume/clair_db
+    fi
+    docker-compose up -d
     popd
     if [[ `verify_repo_up "harbor"` -ne 1 ]]; then
         echo "Failed to login harbor after 1 min..."
@@ -182,7 +206,15 @@ echo_task "install helm client"
 if [[ $skipped -ne 1 ]]; then
     curl $pkgRepo/helm/v2.14.3/linux/amd64/helm -o /usr/sbin/helm
     chmod u+x /usr/sbin/helm
-    helm init --client-only --stable-repo-url $chartRepo/$localInfraChartRepo
+    if [[ $seperateChartmuseum == "true" ]]; then
+        helm init --client-only --stable-repo-url $chartRepo/$localInfraChartRepo
+    else
+        schema="http://"
+        if [[ $imageRepoSecure == "true" ]]; then
+            schema="https://"
+        fi
+        helm init --client-only --stable-repo-url ${schema}${imgRepo}/chartrepo/library
+    fi
 fi
 
 echo_task "install helm push plugin"

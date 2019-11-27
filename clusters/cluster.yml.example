@@ -23,13 +23,10 @@ all_vip_listeners:
 #
 # kube reserved
 #
-# default 200m
+# default 200m, 100m, 512M, 256M
 kube_master_cpu_reserved:
-# default 100m
 kube_cpu_reserved:
-# default 512M
 kube_master_memory_reserved: ""
-# default 256M
 kube_memory_reserved: ""
 
 
@@ -41,3 +38,12 @@ kube_memory_reserved: ""
 
 
 # ingress_prefer: "nginx"
+
+
+# svc.ns.cluster.local and svc.ns.example.com will point to the same service
+# coredns_k8s_external_zone: example.com
+
+# When set to `true`, enables the PodSecurityPolicy admission controller and
+# defines two policies `privileged` (applying to all resources in `kube-system`
+# namespace and kubelet) and `restricted` (applying all other namespaces).
+# podsecuritypolicy_enabled = true

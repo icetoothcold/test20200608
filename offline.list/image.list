@@ -22,7 +22,7 @@ kube-scheduler.v1.15.0.tar  =>  gcr.io/google-containers/kube-scheduler:v1.15.0
 local-path-provisioner.v0.0.2.tar  =>  rancher/local-path-provisioner:v0.0.2
 local-volume-provisioner.v2.3.2.tar  =>  quay.io/external_storage/local-volume-provisioner:v2.3.2
 loginapp.2.7.0.tar  =>  quay.io/fydrah/loginapp:2.7.0
-loginapp-proxy.v0.2.tar
+loginapp-proxy.v0.3.tar
 metrics-server-amd64.v0.3.3.tar  =>  gcr.io/google_containers/metrics-server-amd64:v0.3.3
 nginx.1.15.tar
 nginx-ingress-controller.0.25.0.tar  =>  quay.io/kubernetes-ingress-controller/nginx-ingress-controller:0.25.0

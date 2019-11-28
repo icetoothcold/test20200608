@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: etcd-tool
+  name: etcd-tool
+  namespace: kube-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: etcd-tool
+  template:
+    metadata:
+      labels:
+        app: etcd-tool
+    spec:
+      nodeSelector:
+        node-role.kubernetes.io/master: ""
+      containers:
+      - image: {{ imageRepo }}/library/etcd-tool:{{ etcdToolTag }}
+        imagePullPolicy: IfNotPresent
+        name: etcd-tool
+        volumeMounts:
+        - name: ca
+          mountPath: /tls-ca
+        - name: tls
+          mountPath: /tls
+        env:
+        - name: ETCD_ENDPOINTS
+          value: {{ etcd_endpoints }}
+        - name: ETCD_TRUSTED_CA_FILE
+          value: /tls-ca/ca.pem
+        - name: ETCD_CERT_FILE
+          value: /tls/tls.crt
+        - name: ETCD_KEY_FILE
+          value: /tls/tls.key
+        ports:
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+      volumes:
+      - name: ssl
+        hostPath:
+          path: /etc/ssl/etcd/ssl
+          type: DirectoryOrCreate
+      - name: tls
+        secret:
+          defaultMode: 420
+          secretName: etcd
+      - name: ca
+        secret:
+          defaultMode: 420
+          secretName: etcd-ca
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: etcd-tool
+  name: etcd-tool
+  namespace: kube-system
+spec:
+  ports:
+  - name: http
+    port: 8080
+    protocol: TCP
+    targetPort: http
+  selector:
+    app: etcd-tool

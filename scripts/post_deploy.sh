@@ -33,9 +33,26 @@ fi
 echo_task "install etcd-tool"
 if [[ $skipped -ne 1 ]]; then
     if [[ "$enableEtcdTool" == "true" ]]; then
-        scp $templatePath/etcd-tool-deploy.yaml root@$masterA:.
-        ssh root@$masterA "kubelet apply -f ~/etcd-tool-deploy.yml; \
+        # etcdIPs is a string, not an array, but it's ok for for-loop
+        etcdIPs=`get_etcd_ips_string $clusterName`
+        etcdEndpoints=""
+        for ip in ${etcdIPs[@]}; do
+            if [[ $etcdEndpoints == "" ]]; then
+                etcdEndpoints="https://$ip:2379"
+            else
+                etcdEndpoints="https://$ip:2379,$etcdEndpoints"
+            fi
+        done
+        tmpData="data.tmp.`date +%s`"
+        cat $rootPath/infra.yml >> $tmpData
+        echo "etcd_endpoints: \"$etcdEndpoints\"" >> $tmpData
+        jinja2 $templatePath/etcd-tool-deploy.yml.j2 $tmpData --format=yaml >> etcd-tool-deploy.yml
+        rm -f $tmpData
+
+        scp etcd-tool-deploy.yml root@$masterA:.
+        ssh root@$masterA "kubectl apply -f ~/etcd-tool-deploy.yml; \
                            rm -f ~/etcd-tool-deploy.yml"
+        rm -f etcd-tool-deploy.yml
     else
         echo "Skipped, since etcd tool not enabled"
     fi

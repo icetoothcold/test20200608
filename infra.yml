@@ -4,6 +4,8 @@ myIP: ""
 
 # will be used as image repo domain name
 imageRepo: "local.harbor.io"
+# false to use insecure image repo
+imageRepoSecure: "false"
 
 # will be used as yum repo and pypi repo name
 # pypi repo use the same domain name with yum repo
@@ -64,7 +66,8 @@ platformDNSRootDomains: "io"
 enablePrometheus: "false"
 
 # etcd tool
-enableEtcdTool: "false"
+enableEtcdTool: "true"
+etcdToolTag: "v1.3.2"
 
-kube_apiserver_node_port_range
-./roles/kubernetes/master/defaults/main/main.yml
+#-kube_apiserver_node_port_range
+#-./roles/kubernetes/master/defaults/main/main.yml

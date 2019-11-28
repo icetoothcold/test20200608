@@ -8,7 +8,7 @@ if [[ `ls -l $rootPath | grep "$dataPath$" | awk '{print $3":"$4}'` != "1000:100
     chown 1000:1000 $dataPath
 fi
 
-docker rm -f chartmuseum
+docker rm -f chartmuseum-sep
 docker run -d \
   -p $chartRepoPort:8080 \
   -e DEBUG=1 \
@@ -16,7 +16,7 @@ docker run -d \
   -e STORAGE_LOCAL_ROOTDIR=/charts \
   -e DEPTH=2 \
   -v $dataPath:/charts \
-  --name chartmuseum \
+  --name chartmuseum-sep \
   --restart 'always' \
   -u 1000:1000 \
   $imgRepo/chartmuseum/chartmuseum:latest

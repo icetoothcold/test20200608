@@ -112,7 +112,7 @@ fi
 
 echo_task "start chartmuseum"
 if [[ $skipped -ne 1 ]]; then
-    if [[ $seperateChartmuseum == "true" ]]; then
+    if [[ $harborWithChartmusuem != "true" ]]; then
         image=`ls $imgPath | grep chartmuseum`
         docker load < $imgPath/$image
         docker tag chartmuseum/chartmuseum $imgRepo/chartmuseum/chartmuseum
@@ -130,7 +130,11 @@ fi
 echo_task "install harbor"
 if [[ $skipped -ne 1 ]]; then
     tgzFile=harbor-offline-installer-${harborVersion}.tgz
-    curl $pkgRepo/$tgzFile -o $rootPath/$tgzFile
+    if [[ -f $rpmsPath/$tgzFile ]]; then
+        cp $rpmsPath/$tgzFile $rootPath/$tgzFile
+    else
+        curl $pkgRepo/$tgzFile -o $rootPath/$tgzFile
+    fi
     tar xf $rootPath/$tgzFile -C $rootPath
     rm -f $rootPath/$tgzFile
     pushd $rootPath/harbor
@@ -200,30 +204,6 @@ if [[ $skipped -ne 1 ]]; then
     else
         echo -ne "\nssh rsa key already exists, nothing to do..."
     fi
-fi
-
-echo_task "install helm client"
-if [[ $skipped -ne 1 ]]; then
-    curl $pkgRepo/helm/v2.14.3/linux/amd64/helm -o /usr/sbin/helm
-    chmod u+x /usr/sbin/helm
-    if [[ $seperateChartmuseum == "true" ]]; then
-        helm init --client-only --stable-repo-url $chartRepo/$localInfraChartRepo
-    else
-        schema="http://"
-        if [[ $imageRepoSecure == "true" ]]; then
-            schema="https://"
-        fi
-        helm init --client-only --stable-repo-url ${schema}${imgRepo}/chartrepo/library
-    fi
-fi
-
-echo_task "install helm push plugin"
-if [[ $skipped -ne 1 ]]; then
-    curl $pkgRepo/helm-push.tar -o $rootPath/helm-push.tar
-    tar xf $rootPath/helm-push.tar -C $rootPath
-    curl $pkgRepo/helm-push_install_plugin.sh -o $rootPath/helm-push/scripts/install_plugin.sh
-    helm plugin install $rootPath/helm-push
-    rm -f $rootPath/helm-push.tar
 fi
 
 echo_task "install openldap-clients"

@@ -12,20 +12,16 @@ imageRepoSecure: "false"
 pkgRepo: "http://local.repo.io:8080"
 pypiPort: 8090
 
-#
-chartRepo: "http://local.chart.io:8070"
-# with multitenancy support
-localInfraChartRepo: "local/infra"
-seperateChartmuseum: "false"
-
 # harbor is default image repo we will use
 harborAdminPw: "Harbor12345"
 harborGcCron: "0 0 */2 * * *"
 harborShareVolume: "/nfsdata"
-harborWithClair: "false"
-harborWithChartmusuem: "false"
+harborWithClair: "true"
+harborWithChartmusuem: "true"
 harborVersion: "v1.9.2"
 harborDataVolume: "/data"
+# seperate chartmuseum will be installed if harborWithChartmusuem is "false"
+chartRepo: "http://local.chart.io:8070"
 
 # ldap
 ldapOrgName: "test"

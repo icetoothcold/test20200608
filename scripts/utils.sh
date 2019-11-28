@@ -47,7 +47,6 @@ chartRepoVIP=`for i in $(cat $rootPath/infra.yml | awk -F'"' '/infraVIPs/{print 
 if [[ -z $chartRepoVIP ]]; then
     chartRepoVIP=$myIP
 fi
-localInfraChartRepo=`cat $rootPath/infra.yml | awk -F'"' '/localInfraChartRepo/{print $2}'`
 
 harborAdminPw=`cat $rootPath/infra.yml | awk -F'"' '/harborAdminPw/{print $2}'`
 harborGcCron=`cat $rootPath/infra.yml | awk -F'"' '/harborGcCron/{print $2}'`
@@ -72,7 +71,6 @@ defaultIngress=`cat $rootPath/infra.yml | awk -F'"' '/^defaultIngress:/{print $2
 
 enablePrometheus=`cat $rootPath/infra.yml | awk -F'"' '/^enablePrometheus:/{print $2}'`
 enableEtcdTool=`cat $rootPath/infra.yml | awk -F'"' '/^enableEtcdTool:/{print $2}'`
-seperateChartmuseum=`cat $rootPath/infra.yml | awk -F'"' '/^seperateChartmuseum:/{print $2}'`
 
 tasksNum=`grep -c '^echo_task ' $0`
 taskId=0

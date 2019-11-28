@@ -250,38 +250,6 @@ if [[ $skipped -ne 1 ]]; then
     popd
 fi
 
-echo_task "install helm client"
-if [[ $skipped -ne 1 ]]; then
-    curl $pkgRepo/helm/v2.14.3/linux/amd64/helm -o /usr/sbin/helm
-    chmod u+x /usr/sbin/helm
-    helm init --client-only --stable-repo-url $chartRepo/$localInfraChartRepo
-fi
-
-#echo_task "add ExecStartPost to docker service"
-#if [[ $skipped -ne 1 ]]; then
-#    grep -q "repo_startpost.sh" /usr/lib/systemd/system/docker.service
-#    if [[ $? -ne 0 ]]; then
-#        sed -i "/^Restart=/aExecStartPost=\/usr\/bin\/bash $scriptPath\/repo_startpost.sh" /usr/lib/systemd/system/docker.service
-#    fi
-#set -x
-#    systemctl daemon-reload
-#    systemctl restart docker
-#set +x
-#    if [[ `verify_repo_up "repo"` -ne 1 ]]; then
-#	    echo "After 1 min, local repo up detect failed..."
-#	    exit 1
-#    fi
-#fi
-
-echo_task "install helm push plugin"
-if [[ $skipped -ne 1 ]]; then
-    curl $pkgRepo/helm-push.tar -o $rootPath/helm-push.tar
-    tar xf $rootPath/helm-push.tar -C $rootPath
-    curl $pkgRepo/helm-push_install_plugin.sh -o $rootPath/helm-push/scripts/install_plugin.sh
-    helm plugin install $rootPath/helm-push
-    rm -f $rootPath/helm-push.tar
-fi
-
 echo_task "add tests users and administrator into ldap"
 if [[ $skipped -ne 1 ]]; then
     ldapadd -x -H ldap://$ldapDomain:389 -D "cn=admin,$ldapBindDN" -w $ldapRootPW -f $rootPath/tests/dex-example-config-ldap.ldif

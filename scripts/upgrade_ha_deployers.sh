@@ -116,16 +116,6 @@ if [[ $skipped -ne 1 ]]; then
     ssh root@$peerIP "pip3.6 install ansible jinja2 netaddr pbr hvac jmespath ruamel.yaml jinja2-cli"
 fi
 
-echo_task "peer: install helm client"
-if [[ $skipped -ne 1 ]]; then
-    ssh root@$peerIP "curl $pkgRepo/helm/v2.14.3/linux/amd64/helm -o /usr/sbin/helm; chmod u+x /usr/sbin/helm; helm init --client-only --stable-repo-url $chartRepo/$localInfraChartRepo"
-fi
-
-echo_task "peer: install helm push plugin"
-if [[ $skipped -ne 1 ]]; then
-    ssh root@$peerIP "curl $pkgRepo/helm-push.tar -o helm-push.tar; tar xf helm-push.tar; curl $pkgRepo/helm-push_install_plugin.sh -o helm-push/scripts/install_plugin.sh; helm plugin install helm-push; rm -f helm-push.tar"
-fi
-
 echo_task "update infra domain IPs in /etc/hosts"
 if [[ $skipped -ne 1 ]]; then
     sed -i "s/.*$imgRepo/$imageRepoVIP $imgRepo/" /etc/hosts

@@ -25,12 +25,18 @@ if [[ $imageRepoSecure == "true" ]]; then
     exit 1
 fi
 imageRepoVIP=`for i in $(cat $rootPath/infra.yml | awk -F'"' '/infraVIPs/{print $2}'); do echo $i | awk -F ':' '/imageRepo/{print $2}'; done`
+if [[ -z $imageRepoVIP ]]; then
+    imageRepoVIP=$myIP
+fi
 imgRepoHosts=`cat $rootPath/infra.yml | awk -F'"' '/imgRepoHosts/{print $2}'`
 
 pkgRepo=`cat $rootPath/infra.yml | awk -F'"' '/^pkgRepo:/{print $2}'`
 pkgRepoHost=`echo $pkgRepo | cut -d '/' -f 3 | cut -d ':' -f 1`
 pkgRepoPort=`echo $pkgRepo | cut -d ':' -f 3`
 pkgRepoVIP=`for i in $(cat $rootPath/infra.yml | awk -F'"' '/infraVIPs/{print $2}'); do echo $i | awk -F ':' '/pkgRepo/{print $2}'; done`
+if [[ -z $pkgRepoVIP ]]; then
+    pkgRepoVIP=$myIP
+fi
 pkgRepoHosts=`cat $rootPath/infra.yml | awk -F'"' '/pkgRepoHosts/{print $2}'`
 pypiPort=`cat $rootPath/infra.yml | awk '/pypiPort/{print $2}'`
 
@@ -38,6 +44,9 @@ chartRepo=`cat $rootPath/infra.yml | awk -F'"' '/^chartRepo:/{print $2}'`
 chartRepoHost=`echo $chartRepo | cut -d '/' -f 3 | cut -d ':' -f 1`
 chartRepoPort=`echo $chartRepo | cut -d ':' -f 3`
 chartRepoVIP=`for i in $(cat $rootPath/infra.yml | awk -F'"' '/infraVIPs/{print $2}'); do echo $i | awk -F ':' '/chartRepo/{print $2}'; done`
+if [[ -z $chartRepoVIP ]]; then
+    chartRepoVIP=$myIP
+fi
 localInfraChartRepo=`cat $rootPath/infra.yml | awk -F'"' '/localInfraChartRepo/{print $2}'`
 
 harborAdminPw=`cat $rootPath/infra.yml | awk -F'"' '/harborAdminPw/{print $2}'`
@@ -53,6 +62,9 @@ ldapDomain=`cat $rootPath/infra.yml | awk -F'"' '/ldapDomain/{print $2}'`
 ldapRootPW=`cat $rootPath/infra.yml | awk -F'"' '/ldapRootPW/{print $2}'`
 ldapBindDN=`cat $rootPath/infra.yml | awk -F'"' '/ldapBindDN/{print $2}'`
 ldapVIP=`for i in $(cat $rootPath/infra.yml | awk -F'"' '/infraVIPs/{print $2}'); do echo $i | awk -F ':' '/ldap/{print $2}'; done`
+if [[ -z $ldapVIP ]]; then
+    ldapVIP=$myIP
+fi
 ldapHosts=`cat $rootPath/infra.yml | awk -F'"' '/ldapHosts/{print $2}'`
 oidcUsernamePrefix=`cat $rootPath/infra.yml | awk -F'"' '/^oidcUsernamePrefix:/{print $2}'`
 

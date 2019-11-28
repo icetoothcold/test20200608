@@ -33,13 +33,6 @@ ldapDomain: "local.ldap.io"
 ldapBindDN: "dc=local,dc=ldap,dc=io"
 ldapRootPW: "ldapAdmin"
 
-# the following the lines use the same format, <IP1>[,<IPn..>]:PASSWORD1 <IPx>[,<IPz..>]:PASSWORDn
-# e.g. 1.1.1.1,2.2.2.2:theSamePassword1 3.3.3.3:anotherPassword
-pkgRepoHosts: ""
-imgRepoHosts: ""
-ldapHosts: ""
-haproxyHosts: ""
-
 # oidc
 dexDNS: "dex.local.io"
 loginappDNS: "loginapp.local.io"
@@ -48,10 +41,16 @@ oidcUsernamePrefix: "oidc_"
 # HA
 peerIP: ""
 peerRootPW: ""
-
 # VIPs for infra components, including imageRepo,ldap,pkgRepo,chartRepo
 # e.g. infraVIPs: "imageRepo,ldap:VIP1 pkgRepo,chartRepo:VIP2"
+# If omit, will use myIP.
 infraVIPs: ""
+# the following the lines use the same format, <IP1>[,<IPn..>]:PASSWORD1 <IPx>[,<IPz..>]:PASSWORDn
+# e.g. 1.1.1.1,2.2.2.2:theSamePassword1 3.3.3.3:anotherPassword
+pkgRepoHosts: ""
+imgRepoHosts: ""
+ldapHosts: ""
+haproxyHosts: ""
 
 # ingress
 defaultIngress: "nginx"

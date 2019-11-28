@@ -190,25 +190,6 @@ if [[ $skipped -ne 1 ]]; then
     done
 fi
 
-echo_task "start keepalived, remove temporary VIP and verify"
-if [[ $skipped -ne 1 ]]; then
-    ips=`get_infra_ips "${imgRepoHosts[@]}"`
-    firstImgRepoIP=`echo ${ips[@]} | cut -d ' ' -f 1`
-    for ip in `get_infra_ips "${haproxyHosts[@]}"`; do
-        scp $imgPath/keepalived-vip.${keepalivedTag}.tar root@$ip:.
-        ssh root@$ip "docker load < keepalived-vip.${keepalivedTag}.tar; rm -f keepalived-vip.${keepalivedTag}.tar; docker tag keepalived-vip:$keepalivedTag $imgRepo/library/keepalived-vip:$keepalivedTag; bash $scriptPath/start_keepalived.sh"
-    done
-    ssh root@$firstImgRepoIP "ip a del dev \$(ip r get 8.8.8.8 | awk '/dev/{print \$5}) $imgRepoVIP/32"
-    if [[ `verify_repo_up "vip" "$imageRepoVIP"` -ne 1 ]]; then
-        echo "After 1 min, keepalived-vip for imgRepoVIP($imgRepoVIP) detect failed..."
-        exit 1
-    fi
-    if [[ `verify_repo_up "vip" "$ldapVIP"` -ne 1 ]]; then
-        echo "After 1 min, keepalived-vip for ldapVIP($ldapVIP) detect failed..."
-        exit 1
-    fi
-fi
-
 echo_task "load images to harbor"
 if [[ $skipped -ne 1 ]]; then
     ips=`get_infra_ips "${imgRepoHosts[@]}"`

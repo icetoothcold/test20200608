@@ -49,12 +49,9 @@ oidcUsernamePrefix: "oidc_"
 peerIP: ""
 peerRootPW: ""
 
-# keepalived
-vipInterface: "eth0"
-keepalivedAdvertIntv: "2"
-keepalivedVRID: "123"
-infraVIPs: "imageRepo,ldap:192.168.100.151 pkgRepo,chartRepo:192.168.100.152"
-keepalivedTag: "v0.2"
+# VIPs for infra components, including imageRepo,ldap,pkgRepo,chartRepo
+# e.g. infraVIPs: "imageRepo,ldap:VIP1 pkgRepo,chartRepo:VIP2"
+infraVIPs: ""
 
 # ingress
 defaultIngress: "nginx"

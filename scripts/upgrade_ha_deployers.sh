@@ -73,11 +73,6 @@ if [[ $skipped -ne 1 ]]; then
     rm $tmpData
 fi
 
-echo_task "start keepalived"
-if [[ $skipped -ne 1 ]]; then
-    bash $scriptPath/start_keepalived.sh
-fi
-
 echo_task "peer: generate ssh keys"
 if [[ $skipped -ne 1 ]]; then
     ssh root@$peerIP "ssh-keygen -t rsa -N '' -f ~/.ssh/id_rsa"
@@ -175,11 +170,6 @@ fi
 echo_task "peer: start haproxy"
 if [[ $skipped -ne 1 ]]; then
     ssh root@$peerIP "jinja2 $templatePath/haproxy.repo.cfg.tml $rootPath/infra.yml --format=yaml > $templatePath/haproxy.repo.cfg; bash $scriptPath/start_haproxy.sh"
-fi
-
-echo_task "peer: start keepalived"
-if [[ $skipped -ne 1 ]]; then
-    ssh root@$peerIP "bash $scriptPath/start_keepalived.sh"
 fi
 
 #echo_task "start lsyncd" // peer ?

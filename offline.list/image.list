@@ -12,7 +12,6 @@ etcd.v3.3.10.tar  =>  quay.io/coreos/etcd:v3.3.10
 haproxy.latest.tar
 k8s-dns-node-cache.1.15.1.tar  =>  k8s.gcr.io/k8s-dns-node-cache:1.15.1
 k8s-helm.v2.14.3.tar  =>  lachlanevenson/k8s-helm:v2.14.3
-keepalived-vip.v0.2.tar
 kube-apiserver.v1.15.0.tar  =>  gcr.io/google-containers/kube-apiserver:v1.15.0
 kube-controller-manager.v1.15.0.tar  =>  gcr.io/google-containers/kube-controller-manager:v1.15.0
 kube-proxy.v1.15.0.tar  =>  gcr.io/google-containers/kube-proxy:v1.15.0

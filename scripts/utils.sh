@@ -17,10 +17,6 @@ peerIP=`cat $rootPath/infra.yml | awk -F'"' '/peerIP/{print $2}'`
 peerRootPW=`cat $rootPath/infra.yml | awk -F'"' '/peerRootPW/{print $2}'`
 
 haproxyHosts=`cat $rootPath/infra.yml | awk -F'"' '/haproxyHosts/{print $2}'`
-vipInterface=`cat $rootPath/infra.yml | awk -F'"' '/vipInterface/{print $2}'`
-keepalivedAdvertIntv=`cat $rootPath/infra.yml | awk -F'"' '/keepalivedAdvertIntv/{print $2}'`
-keepalivedVRID=`cat $rootPath/infra.yml | awk -F'"' '/keepalivedVRID/{print $2}'`
-keepalivedTag=`cat $rootPath/infra.yml | awk -F'"' '/keepalivedTag/{print $2}'`
 
 imgRepo=`cat $rootPath/infra.yml | awk -F'"' '/^imageRepo:/{print $2}'`
 imageRepoSecure=`cat $rootPath/infra.yml | awk -F'"' '/^imageRepoSecure:/{print $2}'`

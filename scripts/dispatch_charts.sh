@@ -18,9 +18,6 @@ ts=`date +%s`
 tmpData=$rootPath/chrt_data.tmp$ts
 cat $clusterFile $versionPath/common $versionPath/$kubeVersion $rootPath/infra.yml >> $tmpData
 echo "clusterName: $clusterName" >> $tmpData
-if [[ -z `awk '/all_vip_listeners/{print $2}' $tmpData` ]]; then
-    sed -i "s/^all_vip_listeners:.*$/all_vip_listeners: \"${masterIPs[@]}\"/" $tmpData
-fi
 pushd $chartPath
 # generate dexCA
 for chr in `ls`; do

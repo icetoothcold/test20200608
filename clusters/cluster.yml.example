@@ -10,17 +10,6 @@ force: false
 
 
 #
-# cluster keepalived-vip setting
-#
-vips: "YOUR_CLUSTER_VIP1 YOUR_CLUSTER_VIP2 ..."
-vip_interface: YOUR_VIP_INTERFACE
-virtual_router_id: YOUR_VIRTUAL_ROUTER_ID
-# NOTE: use '"' to enclose nodes IPs which to hold VIP
-# e.g. all_node_ips: "IP1 IP2 IP3", masters IPs will be used if not set
-all_vip_listeners:
-
-
-#
 # kube reserved
 #
 # default 200m, 100m, 512M, 256M

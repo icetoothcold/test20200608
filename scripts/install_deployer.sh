@@ -179,7 +179,9 @@ echo_task "install and config pip3.6"
 if [[ $skipped -ne 1 ]]; then
     yum install -y python36 python36-pip
     pip3.6 install -i http://$pkgRepoHost:$pypiPort/simple --trusted-host $pkgRepoHost pip -U
-    ln -s /usr/local/bin/pip3.6 /usr/bin/pip3.6
+    if [[ ! -f /usr/bin/pip3.6 ]]; then
+        ln -s /usr/local/bin/pip3.6 /usr/bin/pip3.6
+    fi
     pip3.6 config set global.index-url http://$pkgRepoHost:$pypiPort/simple
     pip3.6 config set global.trusted-host $pkgRepoHost
 fi

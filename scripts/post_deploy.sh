@@ -92,6 +92,7 @@ if [[ $skipped -ne 1 ]]; then
         userPrefer=$defaultIngress
     fi
     if [[ `grep supportedIngressControllers $versionPath/common | grep -c $userPrefer` -eq 0 ]]; then
+        echo "cluster defined ingress_prefer not found in supportedIngressControllers, try to use default $defaultIngress"
         userPrefer=$defaultIngress
     fi
     if [[ $userPrefer == "traefik" ]]; then

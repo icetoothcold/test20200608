@@ -93,3 +93,6 @@ for _chart in `ls`; do
 done
 rm $tmpData
 popd > /dev/null
+
+# to generate index
+helm repo update

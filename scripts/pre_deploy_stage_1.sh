@@ -55,6 +55,7 @@ tmp="tmp.`date +%s`"
 # prepare render source data
 cat $versionPath/common  $versionPath/$kubeVersion $rootPath/infra.yml $clusterFile | egrep -v "(^#|^$)" >> data.$tmp
 echo "clusterName: $clusterName" >> data.$tmp
+echo "localInfraChartRepo: $clusterName/infra"
 echo -e "\n\ntemplate render with data:"
 cat data.$tmp
 echo -e "\n"

@@ -71,6 +71,13 @@ if [[ $skipped -ne 1 ]]; then
     bash $scriptPath/dispatch_charts.sh $clusterName
 fi
 
+echo_task "install helm client on cluster masters"
+if [[ $skipped -ne 1 ]]; then
+    for ip in ${masterIPs[@]}; do
+        ssh root@$ip "curl $pkgRepo/helm/v2.14.3/linux/amd64/helm -o /usr/sbin/helm && chmod u+x /usr/sbin/helm && helm init"
+    done
+fi
+
 echo_task "add cluster infra helm repo"
 if [[ $skipped -ne 1 ]]; then
     for ip in ${masterIPs[@]}; do

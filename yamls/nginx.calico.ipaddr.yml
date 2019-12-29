@@ -14,6 +14,9 @@ spec:
     metadata:
       labels:
         app: nginx
+      annotations:
+        "cni.projectcalico.org/ipAddrs": "[\"192.168.0.1\"]"
+        "ATTENTION": "only one ipv4 addr can be assigned"
     spec:
       containers:
       - name: nginx

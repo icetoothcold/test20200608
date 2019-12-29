@@ -13,10 +13,10 @@ if [[ -z $myIP ]]; then
     myIP=`ip r get 8.8.8.8 | awk '{if(NR=1)print $7}'`
 fi
 
-peerIP=`cat $rootPath/infra.yml | awk -F'"' '/peerIP/{print $2}'`
-peerRootPW=`cat $rootPath/infra.yml | awk -F'"' '/peerRootPW/{print $2}'`
+peerIP=`cat $rootPath/infra.yml | awk -F'"' '/^peerIP:/{print $2}'`
+peerRootPW=`cat $rootPath/infra.yml | awk -F'"' '/^peerRootPW:/{print $2}'`
 
-haproxyHosts=`cat $rootPath/infra.yml | awk -F'"' '/haproxyHosts/{print $2}'`
+haproxyHosts=`cat $rootPath/infra.yml | awk -F'"' '/^haproxyHosts:/{print $2}'`
 
 imgRepo=`cat $rootPath/infra.yml | awk -F'"' '/^imageRepo:/{print $2}'`
 imageRepoSecure=`cat $rootPath/infra.yml | awk -F'"' '/^imageRepoSecure:/{print $2}'`
@@ -24,47 +24,47 @@ if [[ $imageRepoSecure == "true" ]]; then
     echo "Secure image repo is not supported yet"
     exit 1
 fi
-imageRepoVIP=`for i in $(cat $rootPath/infra.yml | awk -F'"' '/infraVIPs/{print $2}'); do echo $i | awk -F ':' '/imageRepo/{print $2}'; done`
+imageRepoVIP=`for i in $(cat $rootPath/infra.yml | awk -F'"' '/^infraVIPs:/{print $2}'); do echo $i | awk -F ':' '/imageRepo/{print $2}'; done`
 if [[ -z $imageRepoVIP ]]; then
     imageRepoVIP=$myIP
 fi
-imgRepoHosts=`cat $rootPath/infra.yml | awk -F'"' '/imgRepoHosts/{print $2}'`
+imgRepoHosts=`cat $rootPath/infra.yml | awk -F'"' '/^imgRepoHosts:/{print $2}'`
 
 pkgRepo=`cat $rootPath/infra.yml | awk -F'"' '/^pkgRepo:/{print $2}'`
 pkgRepoHost=`echo $pkgRepo | cut -d '/' -f 3 | cut -d ':' -f 1`
 pkgRepoPort=`echo $pkgRepo | cut -d ':' -f 3`
-pkgRepoVIP=`for i in $(cat $rootPath/infra.yml | awk -F'"' '/infraVIPs/{print $2}'); do echo $i | awk -F ':' '/pkgRepo/{print $2}'; done`
+pkgRepoVIP=`for i in $(cat $rootPath/infra.yml | awk -F'"' '/^infraVIPs:/{print $2}'); do echo $i | awk -F ':' '/pkgRepo/{print $2}'; done`
 if [[ -z $pkgRepoVIP ]]; then
     pkgRepoVIP=$myIP
 fi
-pkgRepoHosts=`cat $rootPath/infra.yml | awk -F'"' '/pkgRepoHosts/{print $2}'`
-pypiPort=`cat $rootPath/infra.yml | awk '/pypiPort/{print $2}'`
+pkgRepoHosts=`cat $rootPath/infra.yml | awk -F'"' '/^pkgRepoHosts:/{print $2}'`
+pypiPort=`cat $rootPath/infra.yml | awk '/^pypiPort:/{print $2}'`
 
 chartRepo=`cat $rootPath/infra.yml | awk -F'"' '/^chartRepo:/{print $2}'`
 chartRepoHost=`echo $chartRepo | cut -d '/' -f 3 | cut -d ':' -f 1`
 chartRepoPort=`echo $chartRepo | cut -d ':' -f 3`
-chartRepoVIP=`for i in $(cat $rootPath/infra.yml | awk -F'"' '/infraVIPs/{print $2}'); do echo $i | awk -F ':' '/chartRepo/{print $2}'; done`
+chartRepoVIP=`for i in $(cat $rootPath/infra.yml | awk -F'"' '/^infraVIPs:/{print $2}'); do echo $i | awk -F ':' '/chartRepo/{print $2}'; done`
 if [[ -z $chartRepoVIP ]]; then
     chartRepoVIP=$myIP
 fi
 
-harborAdminPw=`cat $rootPath/infra.yml | awk -F'"' '/harborAdminPw/{print $2}'`
-harborGcCron=`cat $rootPath/infra.yml | awk -F'"' '/harborGcCron/{print $2}'`
-harborShareVolume=`cat $rootPath/infra.yml | awk -F'"' '/harborShareVolume/{print $2}'`
+harborAdminPw=`cat $rootPath/infra.yml | awk -F'"' '/^harborAdminPw:/{print $2}'`
+harborGcCron=`cat $rootPath/infra.yml | awk -F'"' '/^harborGcCron:/{print $2}'`
+harborShareVolume=`cat $rootPath/infra.yml | awk -F'"' '/^harborShareVolume:/{print $2}'`
 harborWithClair=`cat $rootPath/infra.yml | awk -F'"' '/^harborWithClair:/{print $2}'`
 harborWithChartmusuem=`cat $rootPath/infra.yml | awk -F'"' '/^harborWithChartmusuem:/{print $2}'`
 harborVersion=`cat $rootPath/infra.yml | awk -F'"' '/^harborVersion:/{print $2}'`
 harborDataVolume=`cat $rootPath/infra.yml | awk -F'"' '/^harborDataVolume:/{print $2}'`
 
-ldapOrgName=`cat $rootPath/infra.yml | awk -F'"' '/ldapOrgName/{print $2}'`
-ldapDomain=`cat $rootPath/infra.yml | awk -F'"' '/ldapDomain/{print $2}'`
-ldapRootPW=`cat $rootPath/infra.yml | awk -F'"' '/ldapRootPW/{print $2}'`
-ldapBindDN=`cat $rootPath/infra.yml | awk -F'"' '/ldapBindDN/{print $2}'`
-ldapVIP=`for i in $(cat $rootPath/infra.yml | awk -F'"' '/infraVIPs/{print $2}'); do echo $i | awk -F ':' '/ldap/{print $2}'; done`
+ldapOrgName=`cat $rootPath/infra.yml | awk -F'"' '/^ldapOrgName:/{print $2}'`
+ldapDomain=`cat $rootPath/infra.yml | awk -F'"' '/^ldapDomain:/{print $2}'`
+ldapRootPW=`cat $rootPath/infra.yml | awk -F'"' '/^ldapRootPW:/{print $2}'`
+ldapBindDN=`cat $rootPath/infra.yml | awk -F'"' '/^ldapBindDN:/{print $2}'`
+ldapVIP=`for i in $(cat $rootPath/infra.yml | awk -F'"' '/^infraVIPs:/{print $2}'); do echo $i | awk -F ':' '/ldap/{print $2}'; done`
 if [[ -z $ldapVIP ]]; then
     ldapVIP=$myIP
 fi
-ldapHosts=`cat $rootPath/infra.yml | awk -F'"' '/ldapHosts/{print $2}'`
+ldapHosts=`cat $rootPath/infra.yml | awk -F'"' '/^ldapHosts:/{print $2}'`
 oidcUsernamePrefix=`cat $rootPath/infra.yml | awk -F'"' '/^oidcUsernamePrefix:/{print $2}'`
 
 defaultIngress=`cat $rootPath/infra.yml | awk -F'"' '/^defaultIngress:/{print $2}'`

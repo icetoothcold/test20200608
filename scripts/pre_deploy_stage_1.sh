@@ -57,6 +57,14 @@ cat $versionPath/common  $versionPath/$kubeVersion $rootPath/infra.yml $clusterF
 echo "clusterName: $clusterName" >> data.$tmp
 echo "localInfraChartRepo: $clusterName/infra"
 echo -e "\n\ntemplate render with data:"
+if [[ $harborWithChartmusuem == "true" ]]; then
+    schema="http://"
+    if [[ $imageRepoSecure == "true" ]]; then
+        schema="https://"
+    fi
+    stableRepo=${schema}${imgRepo}/chartrepo/library
+    echo "chartRepo: $stableRepo" >> data.$tmp
+fi
 cat data.$tmp
 echo -e "\n"
 

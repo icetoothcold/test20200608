@@ -26,12 +26,18 @@ fi
 
 echo_task "add infra domain into /etc/hosts"
 if [[ $skipped -ne 1 ]]; then
-    for i in "$pkgRepoHost" "$imgRepo" "$chartRepoHost" "$ldapDomain"; do
+    for i in "$pkgRepoHost" "$imgRepo" "$ldapDomain"; do
         grep -q $i /etc/hosts
         if [[ $? -ne 0 ]]; then
             echo "$myIP  $i" >> /etc/hosts
         fi
     done
+    if [[ $harborWithChartmusuem != "true" ]]; then
+        grep -q $chartRepoHost /etc/hosts
+        if [[ $? -ne 0 ]]; then
+            echo "$myIP  $chartRepoHost" >> /etc/hosts
+        fi
+    fi
 fi
 
 echo_task "disable firewalld service"
@@ -137,6 +143,7 @@ if [[ $skipped -ne 1 ]]; then
     fi
     tar xf $rootPath/$tgzFile -C $rootPath
     rm -f $rootPath/$tgzFile
+    docker load < $imgPath/postgres.9.6.tar
     pushd $rootPath/harbor
     sed -i -e "s/^hostname:.*/hostname: $imgRepo/" \
            -e "s/^harbor_admin_password:.*/harbor_admin_password: $harborAdminPw/" \
@@ -179,9 +186,7 @@ echo_task "install and config pip3.6"
 if [[ $skipped -ne 1 ]]; then
     yum install -y python36 python36-pip
     pip3.6 install -i http://$pkgRepoHost:$pypiPort/simple --trusted-host $pkgRepoHost pip -U
-    if [[ ! -f /usr/bin/pip3.6 ]]; then
-        ln -s /usr/local/bin/pip3.6 /usr/bin/pip3.6
-    fi
+    ln -sfT /usr/local/bin/pip3.6 /usr/bin/pip3.6
     pip3.6 config set global.index-url http://$pkgRepoHost:$pypiPort/simple
     pip3.6 config set global.trusted-host $pkgRepoHost
 fi

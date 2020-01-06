@@ -22,8 +22,9 @@ a2. 在新安装的节点上创建以下目录，并修改owner:
 
 ::
 
-    mkdir -p /etc/kubernetes/ssl
+    mkdir -p /etc/kubernetes/{manifests,ssl}
     chown kube /etc/kubernetes
+    chown kube /etc/kubernetes/manifests
 
 a3. 配置/etc/hosts:
 
@@ -36,7 +37,7 @@ a4. 配置yum repo:
 
 ::
 
-    mkdir /etc/yum.repos.d/bak
+    mkdir -p /etc/yum.repos.d/bak
     mv /etc/yum.repos.d/*repo /etc/yum.repos.d/bak
     curl -o /etc/yum.repos.d/private.repo http://<REPO_DOMAIN>:8080/private.repo
 
@@ -89,6 +90,8 @@ b1. 将以下文件scp到新安装的节点的对应路径:
   - /etc/kubernetes/kubelet-config.yaml
   - /etc/kubernetes/ssl/ca.crt
   - /etc/kubernetes/ssl/ca.key
+  - /usr/local/bin/kubeadm
+  - /usr/local/bin/kubelet
 
 b2. 获取join command:
 
@@ -121,3 +124,8 @@ c3. enable并启动kubelet:
     systemctl status kubelet
 
 c4. 执行join命令
+
+TODO
+----
+
+cni

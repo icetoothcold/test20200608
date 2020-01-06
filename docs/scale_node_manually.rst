@@ -81,7 +81,16 @@ a9. 配置sysctl:
     echo 0 > /proc/sys/net/ipv4/tcp_tw_recycle
     echo 0 > /proc/sys/net/ipv4/tcp_tw_reuse
 
-在当前集群的某节点上执行:
+a10. 设置hostname:
+
+::
+
+    hostnamectl set-hostname <NAME>
+
+a11. 更新/etc/hosts，将master和节点自己的fqdn, hostname加入到/etc/hosts
+
+
+在当前集群的master节点上执行:
 
 b1. 将以下文件scp到新安装的节点的对应路径:
 
@@ -98,6 +107,8 @@ b2. 获取join command:
 ::
 
     kubeadm token create --print-join-command
+
+b3. !!所有master节点更新/etc/hosts，将新加节点的fqdn, hostname加入到/etc/hosts
 
 在新安装的节点上执行:
 
@@ -121,7 +132,7 @@ c3. enable并启动kubelet:
 
     systemctl enable kubelet
     systemctl start kubelet
-    systemctl status kubelet
+    journalctl -xefu kubelet > unload to load bootstrap kubeconfig: stat /etc/kubernetes/bootstrap-kubelet.conf: no such file or directory
 
 c4. 执行join命令
 

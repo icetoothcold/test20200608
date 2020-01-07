@@ -39,3 +39,18 @@ Join sriov node in calico cluster
     kubectl delete pod $(kubectl get pod -l k8s-app=calico-node -o wide | awk '/nodeX/{print $1}')
     kubectl get pod --field-selector=spec.nodeName=nodeX -l k8s-app=calico-node -w
     kubectl uncordon nodeX
+
+4. 修改logging namespace下的fluent-bit ds，确认更新策略为OnDelete，然后将新网络插件节点的fluent-bit pod删掉
+
+::
+
+    kubectl -n logging edit ds fluent-bit
+        ...
+        dnsPolicy: ClusterFirst
+    +   hostNetwork: true
+        restartPolicy: Always
+        ...
+      updateStrategy:
+    +   type: OnDelete
+
+    kubectl -n logging delete pod fluent-bit-XX

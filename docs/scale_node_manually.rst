@@ -63,6 +63,7 @@ a7. 禁用swap:
 ::
 
     swapoff -a
+    edit /etc/rc.d/rc.local, 添加swapoff -a
 
 a8. 禁用firewalld:
 

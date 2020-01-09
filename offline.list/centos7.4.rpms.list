@@ -95,6 +95,7 @@ libpcap-1.5.3-11.el7.x86_64.rpm
 libpng-1.5.13-7.el7_2.x86_64.rpm
 libproxy-0.4.11-11.el7.x86_64.rpm
 libref_array-0.1.5-32.el7.x86_64.rpm
+libseccomp-2.3.1-3.el7.x86_64.rpm
 libselinux-2.5-14.1.el7.x86_64.rpm
 libselinux-devel-2.5-14.1.el7.x86_64.rpm
 libselinux-python-2.5-14.1.el7.x86_64.rpm

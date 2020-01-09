@@ -81,6 +81,15 @@ a9. 配置sysctl:
     echo 1 > /proc/sys/net/bridge/bridge-nf-call-arptables
     echo 0 > /proc/sys/net/ipv4/tcp_tw_recycle
     echo 0 > /proc/sys/net/ipv4/tcp_tw_reuse
+    echo 1 > /proc/sys/net/ipv4/ip_forward
+    echo "20000   65535" > /proc/sys/net/ipv4/ip_local_port_range
+    echo "30000-32767" > /proc/sys/net/ipv4/ip_local_reserved_port
+
+    echo 10 > /proc/sys/vm/swappiness
+
+    echo 1000000 > /proc/sys/fs/inotify/max_user_watches
+
+    echo 1 > /proc/sys/kernel/sysrq
 
 a10. 设置hostname:
 
@@ -137,7 +146,29 @@ c3. enable并启动kubelet:
 
 c4. 执行join命令
 
+在master节点上:
+
+d1. get node
+
+::
+
+    kubectl get node
+
+d2. label node
+
+::
+
+    kubectl label node <NEW-NODE> node-role.kubernetes.io/node=""
+    kubectl label node <NEW-NODE> alcor.zone=XXX
+    kubectl label node <NEW-NODE> cni=XXX
+
 TODO
 ----
 
 cni
+
+参考:
+
+  - docs/join_sriov_node_to_calico_cluster.rst
+  - docs/try_sriov.rst
+  - docs/add_calico-node.rst

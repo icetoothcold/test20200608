@@ -99,6 +99,17 @@ a10. 设置hostname:
 
 a11. 更新/etc/hosts，将master和节点自己的fqdn, hostname加入到/etc/hosts
 
+a12. 安装kube-proxy/ipvs依赖:
+
+::
+
+    yum install -y ipvsadm
+    modprobe ip_vs
+    modprobe ip_vs_rr
+    modprobe ip_vs_wrr
+    modprobe ip_vs_sh
+    modprobe nf_conntrack
+    modprobe nf_conntrack_ipv4
 
 在当前集群的master节点上执行:
 

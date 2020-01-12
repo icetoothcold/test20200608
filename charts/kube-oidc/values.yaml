@@ -30,6 +30,7 @@ dex:
     node-role.kubernetes.io/master: ""
   tolerations:
   - key: node-role.kubernetes.io/master
+    operator: "Exists"
     effect: "NoSchedule"
   affinity: {}
   podAnnotations: {}
@@ -136,7 +137,7 @@ dex:
             filter: "(objectClass=person)"
             # username attribute used for comparing user entries. This will be translated
             # and combine with the other filter as "(<attr>=<username>)".
-            username: mail
+            username: uid
             # The following three fields are direct mappings of attributes on the user entry.
             # String representation of the user.
             idAttr: DN
@@ -209,6 +210,7 @@ loginapp:
     node-role.kubernetes.io/master: ""
   tolerations:
   - key: node-role.kubernetes.io/master
+    operator: "Exists"
     effect: "NoSchedule"
   affinity: {}
   podAnnotations: {}
@@ -331,3 +333,49 @@ keycloakProxy:
   #   Ob8VZRzI9neWagqNdwvYkQsEjgfbKbYK7p2CNTUQ
   #   -----END CERTIFICATE-----
 
+
+######################
+### LoginApp Proxy ###
+######################
+loginappProxy:
+  enabled: true
+  name: loginapp-proxy
+
+  # Image
+  image:
+    repository: {{ imageRepo }}/library/loginapp-proxy
+    tag: {{ loginAppProxyTag }}
+    pullPolicy: IfNotPresent
+
+  # Deployment settings
+  replicas: 1
+  resources: {}
+    # limits:
+    #  cpu: 100m
+    #  memory: 128Mi
+    # requests:
+    #  cpu: 100m
+    #  memory: 128Mi
+  nodeSelector:
+    node-role.kubernetes.io/master: ""
+  tolerations:
+  - key: "node-role.kubernetes.io/master"
+    operator: "Exists"
+    effect: "NoSchedule"
+  affinity: {}
+  podAnnotations: {}
+  port: 8080
+  servicePort: 8080
+
+  # Ingress
+  ingress:
+    enabled: true
+    annotations: {}
+      # kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: 'true'
+    hosts:
+      - {{ loginappProxyDNS }}
+    tls: []
+    #  - secretName: dashboard-example-tls
+    #    hosts:
+    #      - dashboard.example.local

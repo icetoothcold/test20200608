@@ -1,0 +1,21 @@
+{{- if .Values.loginappProxy.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: {{ template "k8s-ldap.name" . }}
+    chart: {{ template "k8s-ldap.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    component: {{ .Values.loginappProxy.name }}
+  name: {{ template "k8s-ldap.loginappProxy.fullname" . }}
+spec:
+  ports:
+  - name: http
+    port: {{ .Values.loginappProxy.servicePort }}
+    protocol: TCP
+    targetPort: {{ .Values.loginappProxy.port }}
+  selector:
+    app: {{ template "k8s-ldap.name" . }}
+    component: {{ .Values.loginappProxy.name }}
+{{- end -}}

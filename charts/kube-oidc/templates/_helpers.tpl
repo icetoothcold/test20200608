@@ -47,3 +47,11 @@ Keycloak fully qualified app name.
 {{- $name := default .Chart.Name .Values.nameOverride -}}
 {{- printf "%s-%s-%s" .Release.Name $name .Values.keycloakProxy.name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
+
+{{/*
+loginapp-proxy fully qualified app name.
+*/}}
+{{- define "k8s-ldap.loginappProxy.fullname" -}}
+{{- $name := default .Chart.Name .Values.nameOverride -}}
+{{- printf "%s-%s-%s" .Release.Name $name .Values.loginappProxy.name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}

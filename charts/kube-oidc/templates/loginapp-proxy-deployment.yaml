@@ -1,0 +1,67 @@
+{{- if .Values.loginappProxy.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: {{ template "k8s-ldap.name" . }}
+    chart: {{ template "k8s-ldap.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    component: {{ .Values.loginappProxy.name }}
+  name: {{ template "k8s-ldap.loginappProxy.fullname" . }}
+spec:
+  replicas: {{ .Values.loginappProxy.replicas }}
+  selector:
+    matchLabels:
+      app: {{ template "k8s-ldap.name" . }}
+      component: {{ .Values.loginappProxy.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "k8s-ldap.name" . }}
+        component: {{ .Values.loginappProxy.name }}
+    spec:
+      containers:
+      - image: {{ .Values.loginappProxy.image.repository }}:{{ .Values.loginappProxy.image.tag }}
+        imagePullPolicy: {{ .Values.loginappProxy.image.pullPolicy }}
+        name: {{ template "k8s-ldap.name" . }}-{{ .Values.loginappProxy.name }}
+        env:
+        - name: LOGINAPP_HOST
+          value: http://{{ template "k8s-ldap.loginapp.fullname" . }}:{{ .Values.loginapp.servicePort }}
+        - name: DEX_HOST
+          value: http://{{ template "k8s-ldap.dex.fullname" . }}:{{ .Values.dex.port }}
+        - name: USE_SERVICE
+          value: "true"
+        ports:
+        - name: http
+          containerPort: {{ .Values.loginappProxy.port }}
+      {{- if .Values.loginappProxy.resources }}
+        resources:
+{{ toYaml .Values.loginappProxy.resources | indent 8 }}
+      {{- end }}
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: {{ .Values.loginappProxy.port }}
+          timeoutSeconds: 5
+          periodSeconds: 5
+          failureThreshold: 5
+        livenessProbe:
+          httpGet:
+            path: /ready
+            port: {{ .Values.loginappProxy.port }}
+          initialDelaySeconds: 30
+          periodSeconds: 5
+    {{- if .Values.loginappProxy.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.loginappProxy.nodeSelector | indent 8 }}
+    {{- end }}
+    {{- if .Values.loginappProxy.tolerations }}
+      tolerations:
+{{ toYaml .Values.loginappProxy.tolerations | indent 8 }}
+    {{- end }}
+    {{- if .Values.loginappProxy.affinity }}
+      affinity:
+{{ toYaml .Values.loginappProxy.affinity | indent 8 }}
+    {{- end -}}
+{{- end -}}

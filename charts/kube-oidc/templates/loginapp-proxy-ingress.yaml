@@ -1,0 +1,34 @@
+{{- if .Values.loginappProxy.enabled -}}
+{{- if .Values.loginappProxy.ingress.enabled -}}
+{{- $serviceName := include "k8s-ldap.loginappProxy.fullname" . }}
+{{- $servicePort := .Values.loginappProxy.servicePort -}}
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  labels:
+    app: {{ template "k8s-ldap.name" . }}
+    chart: {{ template "k8s-ldap.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    component: {{ .Values.loginappProxy.name }}
+  name: {{ template "k8s-ldap.loginappProxy.fullname" . }}
+{{- if .Values.loginappProxy.ingress.annotations }}
+  annotations:
+{{ toYaml .Values.loginappProxy.ingress.annotations | indent 4 }}
+{{- end }}
+spec:
+  rules:
+    {{- range .Values.loginappProxy.ingress.hosts }}
+    - host: {{ . }}
+      http:
+        paths:
+          - backend:
+              serviceName: {{ $serviceName }}
+              servicePort: {{ $servicePort }}
+    {{- end -}}
+{{- if .Values.loginappProxy.ingress.tls }}
+  tls:
+{{ toYaml .Values.loginappProxy.ingress.tls | indent 4 }}
+  {{- end -}}
+{{- end -}}
+{{- end -}}

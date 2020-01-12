@@ -33,6 +33,7 @@ ldapRootPW: "ldapAdmin"
 dexDNS: "dex.local.io"
 loginappDNS: "loginapp.local.io"
 oidcUsernamePrefix: "oidc_"
+loginappProxyDNS: "loginapp-proxy.local.io"
 
 # HA
 peerIP: ""

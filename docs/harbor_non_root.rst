@@ -2,6 +2,13 @@
 Harbor run as non-root
 **********************
 
+0. 更新/etc/rc.d/rc.local，添加一下内容，并确保/etc/rc.d/rc.local具有可执行权限:
+
+::
+
+	docker-compose -f /path/to/harbor/docker-compose.yml down
+	docker-compose -f /path/to/harbor/docker-compose.yml up -d
+
 1. 重新制作harbor-log镜像:
 
 1.1 vi Dockerfile:

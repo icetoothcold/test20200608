@@ -33,7 +33,7 @@ Sriov-cni
         "type": "sriov-cni",
         "shellDir": "/opt/cni/bin",
         "noCheckVolumePath": false,
-        "master": "https://<MASTER_IP>:6443",
+        "master": "https://localhost:6443",
         "kubeConfig": "/etc/kubernetes/kubelet.conf"
     }
 

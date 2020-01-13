@@ -111,6 +111,13 @@ a12. 安装kube-proxy/ipvs依赖:
     modprobe nf_conntrack
     modprobe nf_conntrack_ipv4
 
+a13. 创建nginx目录:
+
+::
+
+	mkdir /etc/nginx
+	chmod 700 /etc/nginx
+
 在当前集群的master节点上执行:
 
 b1. 将以下文件scp到新安装的节点的对应路径:
@@ -130,6 +137,11 @@ b2. 获取join command:
     kubeadm token create --print-join-command
 
 b3. !!所有master节点更新/etc/hosts，将新加节点的fqdn, hostname加入到/etc/hosts
+
+在集群已有计算节点上拷贝以下文件到新装节点对应路径
+
+  - /etc/nginx/nginx.conf
+  - /etc/kubernetes/manifests/nginx-proxy.yml
 
 在新安装的节点上执行:
 

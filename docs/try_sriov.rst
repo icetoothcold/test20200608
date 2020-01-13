@@ -47,3 +47,10 @@ Try sriov
     +   operator: Exists
     + - effect: NoSchedule
     +   operator: Exists
+
+7. prepare /var/run/sriov
+
+::
+
+       mkdir /var/run/sriov
+       chown kube /var/run/sriov

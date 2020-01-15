@@ -20,7 +20,8 @@ cat << EOF > "/etc/cni/net.d/10-default.conf"
     "shellDir": "/opt/cni/bin",
     "noCheckVolumePath": false,
     "master": "https://localhost:6443",
-    "kubeConfig": "/etc/kubernetes/kubelet.conf"
+    "kubeConfig": "/etc/kubernetes/kubelet.conf",
+    "totoalvfs": 63
 }
 EOF
 

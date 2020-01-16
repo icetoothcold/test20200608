@@ -4,3 +4,5 @@ docker_rh_repo_base_url: "{{ pkgRepo }}"
 docker_rh_repo_gpgkey:
 dockerproject_rh_repo_base_url: "{{ pkgRepo }}"
 dockerproject_rh_repo_gpgkey:
+# this is a trick to set systemd as cgroupdrvier
+docker_log_opts: "--log-opt max-size=50m --log-opt max-file=5 --exec-opt native.cgroupdriver=systemd"

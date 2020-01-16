@@ -384,6 +384,9 @@ function insert_infra_hosts
                 continue
             fi
             repo=$item
+            if [[ $repo == "" ]]; then
+                continue
+            fi
             count=`ssh root@$ip "grep -c \"\s$repo\" /etc/hosts"`
             if [[ $count -lt 1 ]]; then
                 ssh root@$ip "echo $vip $repo >> /etc/hosts"

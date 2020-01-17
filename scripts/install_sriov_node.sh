@@ -8,9 +8,20 @@
 
 repoUrl="http://local.repo.io:8080"
 
-curl -o /opt/cni/bin/sriovMGR $repoUrl/srvioMGR && chmod +x /opt/cni/bin/sriovMGR
+curl -o /opt/cni/bin/sriovMGR $repoUrl/sriovMGR && chmod +x /opt/cni/bin/sriovMGR
 
-curl -o /opt/cni/bin/sriov-cni $repoUrl/srvioMGR && chmod +x /opt/cni/bin/sriov-cni
+curl -o /opt/cni/bin/sriov-cni $repoUrl/sriov-cni && chmod +x /opt/cni/bin/sriov-cni
+
+# FIXME:
+# master1 上的/opt/cni/bin/下的二进制文件要先拷到infra的rpms_and_files/all-cnis（目录需要创建) 目录下
+# calico  calico-ipam  flannel  host-local  loopback  portmap  tuning
+curl -o /opt/cni/bin/calico $repoUrl/all-cnis/calico && chmod +x /opt/cni/bin/calico
+curl -o /opt/cni/bin/calico-ipam $repoUrl/all-cnis/calico-ipam && chmod +x /opt/cni/bin/calico-ipam
+curl -o /opt/cni/bin/flannel $repoUrl/all-cnis/flannel && chmod +x /opt/cni/bin/flannel
+curl -o /opt/cni/bin/host-local $repoUrl/all-cnis/host-local && chmod +x /opt/cni/bin/host-local
+curl -o /opt/cni/bin/loopback $repoUrl/all-cnis/loopback && chmod +x /opt/cni/bin/loopback
+curl -o /opt/cni/bin/portmap $repoUrl/all-cnis/portmap && chmod +x /opt/cni/bin/portmap
+curl -o /opt/cni/bin/tuning $repoUrl/all-cnis/tuning && chmod +x /opt/cni/bin/tuning
 
 cat << EOF > "/etc/cni/net.d/10-default.conf"
 {
@@ -24,6 +35,8 @@ cat << EOF > "/etc/cni/net.d/10-default.conf"
     "totoalvfs": 63
 }
 EOF
+
+mkdir /var/run/sriov && chown kube /var/run/sriov
 
 yum install -y jq
 

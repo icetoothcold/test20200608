@@ -34,6 +34,12 @@ for ip in ${hostIPs[@]}; do
                   fi"
 done
 
+# XXX: modify this if environment has package conflict
+#echo "rpm erase XXX"
+#for ip in ${hostIPs[@]}; do
+#    ssh root@$ip "rpm -q --quiet XXX && rpm -e --nodeps XXX"
+#done
+
 echo "stop firewalld"
 for ip in ${hostIPs[@]}; do
     ssh root@$ip "$CMD_DISABLE_FIREWALLD"

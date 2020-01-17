@@ -14,6 +14,14 @@ from yaml.serializer import Serializer
 from yaml.resolver import Resolver
 
 
+INDEX_FORMATS = {
+    2: '{0:02}',
+    3: '{0:03}',
+    4: '{0:04}',
+    5: '{0:05}'
+}
+
+
 class MyRepresenter(Representer):
     def represent_none(self, data):
         return self.represent_scalar(u'tag:yaml.org,2002:null', u'')
@@ -49,13 +57,15 @@ def parse_data(data_file):
     for block in data['hosts']:
         hostname_prefix = block['hostnamePrefix']
         hostname_index = int(block['indexFrom'])
+        index_format = INDEX_FORMATS[int(block['indexLen'])]
         role = block['role']
         first_ip = block['ipstart']
         end_ip = block['ipend']
         ip_idx = netaddr.IPAddress(first_ip).value
         while True:
             ip = str(ipaddress.ip_address(ip_idx))
-            hostname = '%s%d' % (hostname_prefix, hostname_index)
+            hostname = '%s%s' % (
+                hostname_prefix, index_format.format(hostname_index))
             hosts[hostname] = {
                 'ansible_host': ip,
                 'ip': ip,

@@ -4,7 +4,7 @@ hosts:
 # 一组为单位, hostnamePrefix是这一组主机名的通用前缀，indexLen是主机名后面序号位的长度，indexFrom是这一组主机名后面序号从几号开始，ipstart,ipend是这一组主机（需要是连续IP）第一台和最后一台的IP
 - hostnamePrefix: alm
   indexFrom: 2
-  indexLen: 3
+  indexLen: 2
   role: master
   ipstart: 1.1.1.5
   ipend: 1.1.1.7
@@ -16,7 +16,7 @@ hosts:
   ipend: 2.1.1.7
 - hostnamePrefix: aln
   indexFrom: 3
-  indexLen: 3
+  indexLen: 4
   role: node
   ipstart: 3.1.1.1
-  ipend: 3.1.1.2
+  ipend: 3.1.1.5

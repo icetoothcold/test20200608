@@ -400,3 +400,37 @@ function insert_infra_hosts
         done
     done
 }
+
+function batch_curl
+{
+    hosts=$1
+    dst=$2
+    file=$3
+    done_flag="/tmp/task.`date +%s`.done"
+
+    for ip in $hosts; do
+        ssh root@$ip "curl -o $dst $pkgRepo/$file && touch $done_flag" &
+    done
+
+    ip_done=""
+    while true; do
+        ready=1
+        for ip in $hosts; do
+            echo $ip_done | grep -q $ip
+            if [[ $? -eq 0 ]]; then
+                continue
+            fi
+            ssh root@$ip "ls $done_flag" > /dev/null 2>&1
+            if [[ $? -eq 0 ]]; then
+                ip_done="$ip $ip_done"
+                continue
+            fi
+            ready=0
+        done
+        if [[ $ready -eq 1 ]]; then
+            break
+        fi
+        sleep 1
+    done
+    echo "all done"
+}

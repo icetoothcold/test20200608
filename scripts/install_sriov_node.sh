@@ -6,40 +6,37 @@
 
 # refer docs/sriov_cni.rst
 
-repoUrl="http://local.repo.io:8080"
+rootPath="$(cd `dirname $0`; cd .. ; pwd)"
+source $rootPath/scripts/utils.sh
 
-curl -o /opt/cni/bin/sriovMGR $repoUrl/sriovMGR && chmod +x /opt/cni/bin/sriovMGR
+all_cni_bins="calico calico-ipam flannel host-local loopback portmap tuning sriovMGR sriov-cni"
+all_cni_confs="sriov-cni.conf"
+all_cnis="$all_cni_bins $all_cni_confs"
+for cni in ${all_cnis[@]}; do
+    if [[ ! -f $rpmsPath/all-cnis/$cni ]]; then
+        echo "CNI bin file $cni is missing in $rpmsPath/all-cnis"
+    fi
+done
 
-curl -o /opt/cni/bin/sriov-cni $repoUrl/sriov-cni && chmod +x /opt/cni/bin/sriov-cni
+declare -a rc_local_contents
+rc_local_contents+=("systemctl#stop#kubelet")
+rc_local_contents+=("rm#-rf#/var/run/sriov#&&#mkdir#/var/run/sriov#&&#chown#kube#/var/run/sriov")
+rc_local_contents+=("systemctl#start#kubelet")
 
-# FIXME:
-# master1 上的/opt/cni/bin/下的二进制文件要先拷到infra的rpms_and_files/all-cnis（目录需要创建) 目录下
-# calico  calico-ipam  flannel  host-local  loopback  portmap  tuning
-curl -o /opt/cni/bin/calico $repoUrl/all-cnis/calico && chmod +x /opt/cni/bin/calico
-curl -o /opt/cni/bin/calico-ipam $repoUrl/all-cnis/calico-ipam && chmod +x /opt/cni/bin/calico-ipam
-curl -o /opt/cni/bin/flannel $repoUrl/all-cnis/flannel && chmod +x /opt/cni/bin/flannel
-curl -o /opt/cni/bin/host-local $repoUrl/all-cnis/host-local && chmod +x /opt/cni/bin/host-local
-curl -o /opt/cni/bin/loopback $repoUrl/all-cnis/loopback && chmod +x /opt/cni/bin/loopback
-curl -o /opt/cni/bin/portmap $repoUrl/all-cnis/portmap && chmod +x /opt/cni/bin/portmap
-curl -o /opt/cni/bin/tuning $repoUrl/all-cnis/tuning && chmod +x /opt/cni/bin/tuning
+for ip in ${hostIPs[@]}; do
+    ssh root@$ip "mkdir -p /var/run/sriov && chown kube /var/run/sriov && yum install -y jq"
 
-cat << EOF > "/etc/cni/net.d/10-default.conf"
-{
-    "cniVersion": "0.2.0",
-    "name": "mynet",
-    "type": "sriov-cni",
-    "shellDir": "/opt/cni/bin",
-    "noCheckVolumePath": false,
-    "master": "https://localhost:6443",
-    "kubeConfig": "/etc/kubernetes/kubelet.conf",
-    "totoalvfs": 63
-}
-EOF
+    for bin in ${all_cni_bins[@]}; do
+        ssh root@$ip "mkdir -p /opt/cin/bin && chown kube /opt/cin && chown kube /opt/cin/bin && curl -o /opt/cni/bin/$bin $pkgRepo/$bin && chmod +x /opt/cni/bin/$bin"
+    done
 
-mkdir /var/run/sriov && chown kube /var/run/sriov
+    for conf in ${all_cni_confs[@]}; do
+        ssh root@$ip "mkdir -p /etc/cin/bin && chown kube /etc/cin && chown kube /etc/cin/net.d && curl -o /etc/cni/net.d/$conf $pkgRepo/$conf"
+    done
 
-yum install -y jq
-
-echo "systemctl stop kubelet" >> /etc/rc.d/rc.local
-echo "rm -rf /var/run/sriov && mkdir /var/run/sriov && chown kube /var/run/sriov" >> /etc/rc.d/rc.local
-echo "systemctl start kubelet" >> /etc/rc.d/rc.local
+    rclocal="/etc/rc.d/rc.local"
+    for c in ${rc_local_contents[@]}; do
+       cwrap=`echo $c | sed 's/#/ /g'`
+       ssh root@$ip "grep -q $cwrap $rclocal || echo $cwrap >> $rclocal"
+    done
+done

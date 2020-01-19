@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: demo2
+spec:
+  nodeSelector:
+    kubernetes.io/hostname: node2
+  volumes:
+    - name: welcome
+      persistentVolumeClaim:
+        claimName: cfs-pvc
+  containers:
+    - image: local.harbor.io/library/nginx:1.15
+      imagePullPolicy: IfNotPresent
+      name: nginx
+      resources:
+        requests:
+          memory: 64Mi
+          cpu: 50m
+        limits:
+          memory: 64Mi
+          cpu: 50m
+      volumeMounts:
+      - name: welcome
+        mountPath: /usr/share/nginx/html

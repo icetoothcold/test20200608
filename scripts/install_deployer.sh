@@ -157,6 +157,8 @@ if [[ $skipped -ne 1 ]]; then
         withOpts="$withOpts --with-chartmuseum"
     fi
     ./prepare $withOpts
+    # disable XSRF
+    sed -i 's/^EnableXSRF =.*/^EnableXSRF = false/g' ./common/config/core/app.conf
     if [[ `echo $withOpts | grep -c "clair"` -ne 0 ]]; then
         cp -f $templatePath/harbor_with_clair_db/docker-compose.yml docker-compose.yml
         cp -f $templatePath/harbor_with_clair_db/config.yaml common/config/clair/config.yaml

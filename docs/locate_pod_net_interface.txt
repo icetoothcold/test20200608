@@ -1,0 +1,22 @@
+1. 定位Pod在哪个节点:
+   kubectl get pod --all-namespace -o wide | grep <Pod名字>
+   或者: kubectl -n <Pod所属的namespace> get pod -o wide
+   带-o wide参数，将Pod的IP和所在主机打印出来
+
+2. 登录Pod所在节点后，查询Pod的基础容器的ID:
+   docker ps | grep "/pause" | grep <Pod名字>
+   k8s在启动Pod的时候，会先启动一个基础容器，这个容器会执行"/pause"命令，来占一个“坑”，之后Pod里其他的业务容器，都会在这个“坑”的基础上创建，这样同一个Pod里的容器就能公用同一个网络空间，同一个IP了。
+
+3. 查询基础容器的PID:
+   docker inspect <容器ID> | grep -i pid
+
+4. 通过nsenter命令访问容器内部的网络空间，查看对应的网卡信息:
+   nsenter -t <PID> -n ip l | grep eth0
+   输出如: eth0@if57: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT
+   上面的"eth0@if57"中的57就是容器在宿主机将虚拟网卡绑到容器里所使用的虚拟网卡的索引ID
+
+5. 在宿主机上通过网卡的索引ID查找虚拟网卡:
+   ip l | grep "^57:"
+   输入如: 57: cbond1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT
+
+之后就可以在这个网卡上抓包判断检查网络流量了

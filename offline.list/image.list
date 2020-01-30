@@ -13,6 +13,7 @@ calico_typha.v3.10.tar  =>  calico/typha:v3.10
 chartmuseum.latest.tar  =>  chartmuseum/chartmuseum:latest
 cluster-proportional-autoscaler-amd64.1.6.0.tar  =>  k8s.gcr.io/cluster-proportional-autoscaler-amd64:1.6.0
 coredns.1.6.0.tar  =>  coredns/coredns:1.6.0
+debugtils.latest.tar  // https://github.com/OnionPiece/debugtils.tar
 defaultbackend.1.4.tar  =>  k8s.gcr.io/defaultbackend:1.4
 defaultbackend-amd64.1.5.tar  =>  k8s.gcr.io/defaultbackend-amd64:1.5
 dex.v2.15.0.tar  =>  quay.io/dexidp/dex:v2.15.0

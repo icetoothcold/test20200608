@@ -73,6 +73,8 @@ spec:
           mountPath: /tls
         - name: ca
           mountPath: /tls-ca
+        - mountPath: /hosts
+          name: hosts
         ports:
         - containerPort: 53
           name: dns
@@ -123,3 +125,7 @@ spec:
           secret:
             defaultMode: 420
             secretName: etcd-ca
+        - name: hosts
+          hostPath:
+            path: /etc
+            type: ""

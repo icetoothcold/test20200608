@@ -18,6 +18,9 @@ data:
           tls /tls/tls.crt /tls/tls.key /tls-ca/ca.pem
           fallthrough
         }
+        hosts /hosts/hosts {
+          fallthrough
+        }
         kubernetes {{ dns_domain }} in-addr.arpa ip6.arpa {
           pods insecure
 {% if enable_coredns_k8s_endpoint_pod_names %}

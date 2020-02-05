@@ -66,7 +66,7 @@ fi
 echo_task "localinstall necessary packages, including docker-ce, selinux, ..."
 if [[ $skipped -ne 1 ]]; then
     pushd $rpmsPath
-    yum localinstall -y audit* checkpolicy* containerd.io* container-selinux* docker-ce* libcgroup* libselinux* libsemanage* libsepol* policycoreutils* python-IPy* selinux-policy* setools-libs* pcre-devel*
+    yum localinstall -y audit* checkpolicy* containerd.io* container-selinux* docker-ce* libcgroup* libselinux* libsemanage* libsepol* policycoreutils-python-2.5-29.el7_6.1.x86_64 python-IPy* selinux-policy* setools-libs* pcre-devel*
     popd
 fi
 

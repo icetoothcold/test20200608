@@ -101,6 +101,9 @@ diff_and_cp $templatePath/container-engine_containerd_templates_rh_containerd.re
 diff_and_cp $templatePath/container-engine_docker_tasks_main.yml roles/container-engine/docker/tasks/main.yml
 diff_and_cp $templatePath/container-engine_docker_templates_rh_docker.repo.j2 roles/container-engine/docker/templates/rh_docker.repo.j2
 
+# disable system nameserver
+diff_and_cp $templatePath/container-engine_docker_tasks_set_facts_dns.yml roles/container-engine/docker/tasks/set_facts_dns.yml
+
 # for oracle, replace bootstrap-os main.yml
 diff_and_cp $templatePath/bootstrap-os_main.yml roles/bootstrap-os/tasks/main.yml
 

@@ -1,0 +1,24 @@
+# 网卡名，VIP将挂在该网卡上
+interfaceName: bond0
+# keepalived 节点IP
+nodeIPs:
+  - 10.10.47.133
+  - 10.10.47.134
+# 由keepalived代理VIP的组件
+# name:组件名, vrid:virtual_router_id
+components:
+  - name: mysql
+    vrid: 201
+    vip: 10.10.120.3
+  - name: ldap
+    vrid: 202
+    vip: 10.10.120.2
+  - name: repo
+    vrid: 203
+    vip: 10.10.120.1
+  - name: data
+    vrid: 204
+    vip: 10.10.120.4
+  - name: cluster
+    vrid: 205
+    vip: 10.10.120.5

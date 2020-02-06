@@ -1,0 +1,65 @@
+# 渲染出的配置文件的名字
+name: haproxy-outer.conf
+# http暴露的服务的frontend
+# domain: 域名, deny: 拒绝域名对应的请求，allowOnly: 仅允许域名对应的请求, backend: 使用defaultBackend之外的backend
+httpFrontends:
+  - name: web_in
+    port: 80
+    defaultBackend: mgcontroller
+    services:
+      - name: harbor
+        domain: local.harbor.io
+        backend: harbor
+      - name: dex
+        domain: dex.local.io
+        backend: alcordata
+      - name: loginapp
+        domain: loginapp.local.io
+        backend: alcordata
+      - name: laproxy
+        domain: loginapp-proxy.local.io
+        backend: alcordata
+      - name: omp
+        domain: omp.local.io
+        deny: true
+  - name: omp_in
+    port: 8081
+    defaultBackend: mgcontroller
+    services:
+      - name: omp
+        domain: omp.local.io
+        allowOnly: true
+# http暴露的服务的backend
+httpBackends:
+  - name: mgcontroller
+    servers:
+      - ip: 10.10.47.130
+        port: 80
+      - ip: 10.10.47.131
+        port: 80
+      - ip: 10.10.47.132
+        port: 80
+  - name: harbor
+    seperate: true
+    servers:
+      - ip: 127.0.0.1
+        port: 8888
+  - name: alcordata
+    servers:
+      - ip: 10.10.47.135
+        port: 80
+      - ip: 10.10.47.136
+        port: 80
+      - ip: 10.10.47.137
+        port: 80
+# tcp暴露的服务
+tcpServices:
+  - name: https_in
+    port: 8443
+    servers:
+      - ip: 10.250.47.135
+        port: 443
+      - ip: 10.250.47.136
+        port: 443
+      - ip: 10.250.47.137
+        port: 443

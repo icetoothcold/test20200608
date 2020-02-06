@@ -40,6 +40,11 @@ done
 #    ssh root@$ip "rpm -q --quiet XXX && rpm -e --nodeps XXX"
 #done
 
+echo "manually handle policycoreutils"
+for ip in ${hostIPs[@]}; do
+    ssh root@$ip "rpm -q --quiet policycoreutils-2.5-33.0.1.el7.x86_64 && rpm -e --nodeps policycoreutils-2.5-33.0.1.el7.x86_64; yum install -y policycoreutils-python-2.5-29.el7_6.1.x86_64"
+done
+
 echo "stop firewalld"
 for ip in ${hostIPs[@]}; do
     ssh root@$ip "$CMD_DISABLE_FIREWALLD"

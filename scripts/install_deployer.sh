@@ -160,7 +160,13 @@ if [[ $skipped -ne 1 ]]; then
     # disable XSRF
     sed -i 's/^EnableXSRF =.*/^EnableXSRF = false/g' ./common/config/core/app.conf
     if [[ `echo $withOpts | grep -c "clair"` -ne 0 ]]; then
-        cp -f $templatePath/harbor_with_clair_db/docker-compose.yml docker-compose.yml
+        clairFirstLine=`awk '/^  [^ ]/{print NR,$1}' docker-compose.yml | awk '/ clair:/{print $1}'`
+        clairIndex=`awk '/^  [^ ]/{print NR,$1}' docker-compose.yml | awk '/ clair:/{print NR}'`
+        clairLastLine=$((`awk '/^  [^ ]/{print NR,$1}' docker-compose.yml | awk "{if(NR==$((clairIndex+1)))print $1}" | cut -d ' ' -f 1`-1))
+        # modify postgresql to clair-db in clair depends_on
+        sed -i "$clairFirstLine,${clairLastLine}s/postgresql/clair-db/" docker-compose.yml
+        # insert clair-db
+        sed -i "${clairLastLine}a\ \ clair-db:\n    networks:\n      - harbor-clair\n    container_name: clair-db\n    image: postgres:9.6\n    restart: always\n    cap_drop:\n      - ALL\n    cap_add:\n      - CHOWN\n       - DAC_OVERRIDE\n      - SETGID\n      - SETUID\n    user: 999:999\n    volumes:\n      - $harborDataVolume/clair_db:/var/lib/postgresql/data:z\n    dns_search: .\n    environment:\n      - POSTGRES_USER=postgres\n      - POSTGRES_PASSWORD=root123" docker-compose.yml
         cp -f $templatePath/harbor_with_clair_db/config.yaml common/config/clair/config.yaml
         pushd $imgPath > /dev/null
             docker load < postgres.9.6.tar

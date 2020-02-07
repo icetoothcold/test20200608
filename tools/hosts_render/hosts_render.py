@@ -16,13 +16,12 @@ from yaml.resolver import Resolver
 
 class MyRepresenter(Representer):
     def represent_none(self, data):
-        return self.represent_scalar(u'tag:yaml.org,2002:null', u'')
-
+        return self.represent_scalar('tag:yaml.org,2002:null', '')
 
 class MyDumper(Emitter, Serializer, MyRepresenter, Resolver):
     def __init__(self, stream, default_style=None, default_flow_style=None,
                  canonical=None, indent=None, width=None, allow_unicode=None,
-                 line_break=None, encoding=None, explicit_start=None,
+                 line_break=None, encoding=None, explicit_start=None, sort_keys=True,
                  explicit_end=None, version=None, tags=None):
         Emitter.__init__(self, stream, canonical=canonical,
                          indent=indent, width=width,
@@ -37,13 +36,13 @@ class MyDumper(Emitter, Serializer, MyRepresenter, Resolver):
 
 MyRepresenter.add_representer(type(None), MyRepresenter.represent_none)
 
-
 def parse_data(data_file):
     data = yaml.safe_load(open(data_file))
     hosts = {}
     master_hosts = {}
     node_hosts = {}
     etcd_hosts = {}
+    infra_hosts = {}
     passwords = {}
     password = data['password']
     for block in data['hosts']:
@@ -68,15 +67,18 @@ def parse_data(data_file):
                 etcd_hosts[hostname] = None
             elif role == 'node':
                 node_hosts[hostname] = None
+            elif role == 'infra':
+                node_hosts[hostname] = None
+                infra_hosts[hostname] = None
             passwords[ip] = password
             if ip == end_ip:
                 break
             ip_idx+=1
             hostname_index+=1
-    return hosts, master_hosts, node_hosts, etcd_hosts, passwords
+    return hosts, master_hosts, node_hosts, etcd_hosts,infra_hosts, passwords
 
 
-def render_inventory_hosts(hosts, master_hosts, node_hosts, etcd_hosts):
+def render_inventory_hosts(hosts, master_hosts, node_hosts, etcd_hosts, infra_hosts):
     return {
         'all': {
             'hosts': hosts,
@@ -84,6 +86,7 @@ def render_inventory_hosts(hosts, master_hosts, node_hosts, etcd_hosts):
                 'kube-master': {'hosts': master_hosts},
                 'kube-node': {'hosts': node_hosts},
                 'etcd': {'hosts': etcd_hosts},
+                'kube-infra': {'hosts': infra_hosts},
                 'k8s-cluster': {'children': {
                     'kube-master': None, 'kube-node': None}},
                 'calico-rr': {'hosts': {}}
@@ -107,8 +110,8 @@ if __name__ == '__main__':
         print("usage: python3 %s <NODE_INFO_YAML>" % __file__)
         sys.exit(1)
     data_file = sys.argv[1]
-    hosts, master_hosts, node_hosts, etcd_hosts, passwords = parse_data(
+    hosts, master_hosts, node_hosts, etcd_hosts,infra_hosts, passwords = parse_data(
         data_file)
     save_inventory_hosts(render_inventory_hosts(
-        hosts, master_hosts, node_hosts, etcd_hosts))
+        hosts, master_hosts, node_hosts, etcd_hosts, infra_hosts))
     save_cluster_hosts(passwords)

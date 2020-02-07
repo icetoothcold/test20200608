@@ -11,7 +11,7 @@ hosts:
 - hostnamePrefix: ali
   indexFrom: 2
   indexLen: 3
-  role: node
+  role: infra
   ipstart: 2.1.1.5
   ipend: 2.1.1.7
 - hostnamePrefix: aln

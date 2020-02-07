@@ -1,5 +1,5 @@
 skipFirstN=0
-skipLastFrom=0
+skipLastFrom=3
 notSkip=()
 
 rootPath="$(cd `dirname $0`; cd .. ; pwd)"
@@ -17,16 +17,43 @@ parse_cluster_file
 masterIPs=`get_master_ips_string $clusterName`
 masterA=`echo $masterIPs | cut -d ' ' -f 1`
 
-myKubeletCM="my-kubelet-cm"
-myKubeletCMFile="/etc/kubernetes/my-kubelet-config.yaml"
+masterKubeletCM="master-kubelet-cm"
+infraKubeletCM="infra-kubelet-cm"
+nodeKubeletCM="node-kubelet-cm"
+bootstrapKubeletCMFile="/etc/kubernetes/my-kubelet-config.yaml"
+
+kubeNodeNames=`get_node_nodename_strings $clusterName`
+kubeInfraNames=`get_infra_nodename_strings $clusterName`
+
+echo_task "label node for different purposes"
+# TODO: If overwrite node's label which role=master
+if [[ $skipped -ne 1 ]]; then
+    for node in ${kubeNodeNames[@]}; do
+        ssh root@$masterA "kubectl label node $node node-role.kubernetes.io/node=  --overwrite"
+    done
+    for infra in ${kubeNodeNames[@]}; do
+        ssh root@$masterA "kubectl label node $infra node-role.kubernetes.io/infra=  --overwrite"
+    done
+fi
+
 echo_task "config kubelet dynamic configuration"
 if [[ $skipped -ne 1 ]]; then
-    ssh root@$masterA "kubectl -n kube-system delete cm $myKubeletCM; \
-                       cp -f /etc/kubernetes/kubelet-config.yaml $myKubeletCMFile; \
-                       sed -i 's/^address:.*/address: 0.0.0.0/g' $myKubeletCMFile; \
-                       kubectl -n kube-system create cm $myKubeletCM --from-file=kubelet=$myKubeletCMFile"
-    ssh root@$masterA "for node in \`kubectl get node --template='{{range .items}}{{.metadata.name}} {{end}}'\`; do \
-                           kubectl patch node \$node -p '{\"spec\":{\"configSource\":{\"configMap\":{\"name\":\"$myKubeletCM\",\"namespace\":\"kube-system\",\"kubeletConfigKey\":\"kubelet\"}}}}';
+    ssh root@$masterA "kubectl -n kube-system delete cm $masterKubeletCM; \
+                       kubectl -n kube-system delete cm $infraKubeletCM; \
+                       kubectl -n kube-system delete cm $nodeKubeletCM; \
+                       cp -f /etc/kubernetes/kubelet-config.yaml $bootstrapKubeletCMFile; \
+                       sed -i 's/^address:.*/address: 0.0.0.0/g' $bootstrapKubeletCMFile; \
+                       kubectl -n kube-system create cm $masterKubeletCM --from-file=kubelet=$bootstrapKubeletCMFile; \
+                       kubectl -n kube-system create cm $infraKubeletCM --from-file=kubelet=$bootstrapKubeletCMFile; \
+                       kubectl -n kube-system create cm $nodeKubeletCM --from-file=kubelet=$bootstrapKubeletCMFile"
+    ssh root@$masterA "for node in \`kubectl get node -l node-role.kubernetes.io/master=\"\" --template='{{range .items}}{{.metadata.name}} {{end}}'\`; do \
+                           kubectl patch node \$node -p '{\"spec\":{\"configSource\":{\"configMap\":{\"name\":\"$masterKubeletCM\",\"namespace\":\"kube-system\",\"kubeletConfigKey\":\"kubelet\"}}}}';
+                       done"
+    ssh root@$masterA "for node in \`kubectl get node -l node-role.kubernetes.io/node=\"\" --template='{{range .items}}{{.metadata.name}} {{end}}'\`; do \
+                           kubectl patch node \$node -p '{\"spec\":{\"configSource\":{\"configMap\":{\"name\":\"$nodeKubeletCM\",\"namespace\":\"kube-system\",\"kubeletConfigKey\":\"kubelet\"}}}}';
+                       done"
+    ssh root@$masterA "for node in \`kubectl get node -l node-role.kubernetes.io/infra=\"\" --template='{{range .items}}{{.metadata.name}} {{end}}'\`; do \
+                           kubectl patch node \$node -p '{\"spec\":{\"configSource\":{\"configMap\":{\"name\":\"$infraKubeletCM\",\"namespace\":\"kube-system\",\"kubeletConfigKey\":\"kubelet\"}}}}';
                        done"
 fi
 
@@ -115,11 +142,7 @@ fi
 echo_task "install prometheus-operator"
 if [[ $skipped -ne 1 ]]; then
     if [[ $enablePrometheus == "true" ]]; then
-        chartRepo="infra"
-        if [[ $harborWithChartmusuem == "true" ]]; then
-            chartRepo="stable"
-        fi
-        ssh root@$masterA "helm repo update; helm install $chartRepo/prometheus-operator --name prometheus-operator"
+        ssh root@$masterA "helm repo update; helm install infra/prometheus-operator --name prometheus-operator"
     else
         echo "Skipped, since prometheus not enabled"
     fi
@@ -129,7 +152,6 @@ echo_task "install kube-prometheus"
 if [[ $skipped -ne 1 ]]; then
     if [[ $enablePrometheus == "true" ]]; then
         iplist=`echo ${masterIPs[@]} | sed 's/ /,/g'`
-        iplist="{"$iplist"}"
         ssh root@$masterA "kubectl -n monitoring create secret generic etcd-certs \
                                --from-file=/etc/ssl/etcd/ssl/ca.pem \
                                --from-file=/etc/ssl/etcd/ssl/node-\`hostname\`.pem \
@@ -144,7 +166,7 @@ fi
 echo_task "install prometheus-rules, grafana-dashboardDefinations"
 if [[ $skipped -ne 1 ]]; then
     if [[ $enablePrometheus == "true" ]]; then
-        for fName in prometheus-rules.yaml grafana-dashboardDefinations.yaml; do
+        for fName in "prometheus-rules.yaml grafana-dashboardDefinations.yaml"; do
             ssh root@$masterA "curl $pkgRepo/prometheus/manifests/$fName -o $fName && kubectl apply -f $fName && rm -f $fName"
         done
     else
@@ -155,11 +177,8 @@ fi
 echo_task "install kube-prometheus-ldap"
 if [[ $skipped -ne 1 ]]; then
     if [[ $enablePrometheus == "true" ]]; then
-        chartRepo="infra"
-        if [[ $harborWithChartmusuem == "true" ]]; then
-            chartRepo="stable"
-        fi
-        ssh root@$masterA "helm repo update; helm install $chartRepo/kube-prometheus-ldap --name kube-prometheus-ldap --set clusterName=$clusterName"
+        ssh root@$masterA "helm repo update; helm install infra/kube-prometheus-ldap --name kube-prometheus \
+                               --set clusterName=$clusterName"
     else
         echo "Skipped, since prometheus not enabled"
     fi

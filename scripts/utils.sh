@@ -276,8 +276,6 @@ function get_etcd_ips_string
     python3 -c "import yaml; all=yaml.safe_load(open('$inventoryPath/$1/hosts.yml'))['all']; print(' '.join([all['hosts'][host]['ip'] for host in all['hosts'] if host in all['children']['etcd']['hosts']]))"
 }
 
-# exclude master and infra.
-# reserve for other purposes.
 function get_node_nodename_strings
 {
     python3 -c "import yaml; all=yaml.safe_load(open('$inventoryPath/$1/hosts.yml'))['all'];print(' '.join(host for host in all['hosts'].keys() if host in all['children']['kube-node']['hosts'] and host not in all['children']['kube-master']['hosts'] and host not in all['children']['kube-infra']['hosts'] ))"

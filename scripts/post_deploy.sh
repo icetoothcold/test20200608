@@ -1,5 +1,5 @@
 skipFirstN=0
-skipLastFrom=3
+skipLastFrom=0
 notSkip=()
 
 rootPath="$(cd `dirname $0`; cd .. ; pwd)"
@@ -142,7 +142,11 @@ fi
 echo_task "install prometheus-operator"
 if [[ $skipped -ne 1 ]]; then
     if [[ $enablePrometheus == "true" ]]; then
-        ssh root@$masterA "helm repo update; helm install infra/prometheus-operator --name prometheus-operator"
+        chartRepo="infra"
+        if [[ $harborWithChartmusuem == "true" ]]; then
+            chartRepo="stable"
+        fi
+        ssh root@$masterA "helm repo update; helm install $chartRepo/prometheus-operator --name prometheus-operator"
     else
         echo "Skipped, since prometheus not enabled"
     fi
@@ -152,6 +156,7 @@ echo_task "install kube-prometheus"
 if [[ $skipped -ne 1 ]]; then
     if [[ $enablePrometheus == "true" ]]; then
         iplist=`echo ${masterIPs[@]} | sed 's/ /,/g'`
+        iplist="{"$iplist"}"
         ssh root@$masterA "kubectl -n monitoring create secret generic etcd-certs \
                                --from-file=/etc/ssl/etcd/ssl/ca.pem \
                                --from-file=/etc/ssl/etcd/ssl/node-\`hostname\`.pem \
@@ -166,7 +171,7 @@ fi
 echo_task "install prometheus-rules, grafana-dashboardDefinations"
 if [[ $skipped -ne 1 ]]; then
     if [[ $enablePrometheus == "true" ]]; then
-        for fName in "prometheus-rules.yaml grafana-dashboardDefinations.yaml"; do
+        for fName in prometheus-rules.yaml grafana-dashboardDefinations.yaml; do
             ssh root@$masterA "curl $pkgRepo/prometheus/manifests/$fName -o $fName && kubectl apply -f $fName && rm -f $fName"
         done
     else
@@ -177,8 +182,11 @@ fi
 echo_task "install kube-prometheus-ldap"
 if [[ $skipped -ne 1 ]]; then
     if [[ $enablePrometheus == "true" ]]; then
-        ssh root@$masterA "helm repo update; helm install infra/kube-prometheus-ldap --name kube-prometheus \
-                               --set clusterName=$clusterName"
+        chartRepo="infra"
+        if [[ $harborWithChartmusuem == "true" ]]; then
+            chartRepo="stable"
+        fi
+        ssh root@$masterA "helm repo update; helm install $chartRepo/kube-prometheus-ldap --name kube-prometheus-ldap --set clusterName=$clusterName"
     else
         echo "Skipped, since prometheus not enabled"
     fi

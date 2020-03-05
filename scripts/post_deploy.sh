@@ -168,10 +168,10 @@ if [[ $skipped -ne 1 ]]; then
     fi
 fi
 
-echo_task "install prometheus-rules, grafana-dashboardDefinations"
+echo_task "install prometheus-rules, grafana-dashboardDefinitions"
 if [[ $skipped -ne 1 ]]; then
     if [[ $enablePrometheus == "true" ]]; then
-        for fName in prometheus-rules.yaml grafana-dashboardDefinations.yaml; do
+        for fName in prometheus-rules.yaml grafana-dashboardDefinitions.yaml; do
             ssh root@$masterA "curl $pkgRepo/prometheus/manifests/$fName -o $fName && kubectl apply -f $fName && rm -f $fName"
         done
     else

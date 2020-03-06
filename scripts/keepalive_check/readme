@@ -1,0 +1,12 @@
+1. 针对haproxy的检查，需要先开启haproxy stats和server配置check，参考alcordata_haproxy_stats.txt
+
+2. 现在只做了端口测试，没有做服务测试，例如:
+  - 针对ldap，可以尝试ldapsearch来测试是否可以ldap服务是否正常
+      ldapsearch -x -H ldap://local.ldap.io:389 -b ou=People,dc=local,dc=ldap,dc=io -D cn=admin,dc=local,dc=ldap,dc=io -w <LDAP_ADMIN_PASSWORD> uid=<任意uid甚至不存在>
+    然后判断命令返回值，如果是0则OK。只检查口令正确，已经ldap能够接受查询就可以了，即使传了一个不存在的uid，命令成功返回一个空也是可以接受的。
+
+  - 针对harbor，可以调用harbor自己的health api
+      
+  - 针对alcordata haproxy，可以通过localhost:6443 curl alcordata cluster的master api，可以不需要在curl的时候传入token，返回403也是ok的，这样就能说明apiserver在工作。
+
+3. 所有的check_xx.sh 脚本，都需要是可执行的。写完后，在keepalived的节点上可以先跑一下试试看，看看返回0(检查通过)或1(检查失败)的情况是否符合预期。调试完成后，再去调keepalived的配置，参考xx_keepalived.conf.example

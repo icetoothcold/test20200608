@@ -10,3 +10,9 @@
   - 针对alcordata haproxy，可以通过localhost:6443 curl alcordata cluster的master api，可以不需要在curl的时候传入token，返回403也是ok的，这样就能说明apiserver在工作。
 
 3. 所有的check_xx.sh 脚本，都需要是可执行的。写完后，在keepalived的节点上可以先跑一下试试看，看看返回0(检查通过)或1(检查失败)的情况是否符合预期。调试完成后，再去调keepalived的配置，参考xx_keepalived.conf.example
+
+4. 修改keepalived.conf
+global_defs {
+   #添加内容如下：
+   script_user root
+}

@@ -9,8 +9,8 @@ dns_mode: coredns
 enable_coredns_k8s_external: false
 coredns_k8s_external_zone: k8s_external.local
 enable_coredns_k8s_endpoint_pod_names: false
-kube_feature_gates: |-
-  ExpandCSIVolumes=true
+kube_feature_gates:
+  - ExpandCSIVolumes=true
 deploy_netchecker: false
 container_manager: docker
 ## Settings for containerized control plane (etcd/kubelet/secrets)

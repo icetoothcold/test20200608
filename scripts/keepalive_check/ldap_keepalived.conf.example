@@ -1,0 +1,26 @@
+vrrp_script ldap_check {
+	script "/path/to/check_ldap.sh"
+	interval 2
+	fail 3
+	rise 3
+}
+
+vrrp_instance ldap {
+	state BACKUP
+	interface bond0
+	grap_master_delay 2
+	virtual_router_id 202
+	priority 100
+	nopreempt
+	advert_int 1
+	virtual_ipaddress {
+		a.b.c.d dev bond0
+	}
+	unicast_src_ip u.v.w.x
+	unicast_peer {
+		e.f.g.h
+	}
+	track_script {
+		ldap_check
+	}
+}

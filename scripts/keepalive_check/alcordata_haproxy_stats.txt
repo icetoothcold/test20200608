@@ -1,0 +1,20 @@
+Enable haproxy stats in alcordata haproxy
+
+1. 为stats添加listen和api接口
+
+listen stats
+	bind :6391
+	mode http
+	stats enable
+	stats hide-version
+	stats auth admin:<PASSWORD>
+	stats uri /stats
+
+2. 为backend中的server开启check, like:
+    server master1 <master1_IP> check
+
+参考 /usr/share/doc/haproxy/configuration.txt.gz
+或   /usr/share/doc/haproxy-<版本号>/configuration.txt.gz
+
+server可以配置的参数除了check，还有inter, fall, rise, fastinter, downinter，用于调整haproxy对server
+的健康检查策略，如无特殊需求，只配置check即可。

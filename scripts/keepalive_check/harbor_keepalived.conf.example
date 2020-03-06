@@ -1,7 +1,7 @@
 vrrp_script harbor_check {
 	script "/path/to/check_harbor.sh"
 	interval 2
-	fail 3
+	fall 3
 	rise 3
 }
 

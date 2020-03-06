@@ -1,7 +1,7 @@
 vrrp_script ldap_check {
 	script "/path/to/check_ldap.sh"
 	interval 2
-	fail 3
+	fall 3
 	rise 3
 }
 

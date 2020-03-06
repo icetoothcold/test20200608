@@ -1,7 +1,7 @@
 vrrp_script alcordata_check {
 	script "/path/to/check_alcorDataHaproxy.sh"
 	interval 2
-	fail 3
+	fall 3
 	rise 3
 }
 

@@ -158,7 +158,7 @@ if [[ $skipped -ne 1 ]]; then
     fi
     ./prepare $withOpts
     # disable XSRF
-    sed -i 's/^EnableXSRF =.*/^EnableXSRF = false/g' ./common/config/core/app.conf
+    sed -i 's/^EnableXSRF =.*/EnableXSRF = false/g' ./common/config/core/app.conf
     # replace postgresql with clair-db in clair depends_on
     if [[ `echo $withOpts | grep -c "clair"` -ne 0 ]]; then
         clairFirstLine=`awk '/^  [^ ]/{print NR,$1}' docker-compose.yml | awk '/ clair:/{print $1}'`

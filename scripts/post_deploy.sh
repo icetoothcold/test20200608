@@ -25,6 +25,15 @@ bootstrapKubeletCMFile="/etc/kubernetes/my-kubelet-config.yaml"
 kubeNodeNames=`get_node_nodename_strings $clusterName`
 kubeInfraNames=`get_infra_nodename_strings $clusterName`
 
+projName="basic"
+
+echo_task "create harbor project: basic"
+curl --retry 10 --retry-delay 3 --retry-max-time 30 -u "admin:$harborAdminPw" -X POST http://$imgRepo/api/projects -H "accept: application/json" -H "Content-Type: application/json" -d "{\"project_name\": \"$projName\", \"metadata\": { \"public\": \"true\" }}"
+if [[ $? -ne 0 ]]; then
+    echo "Failed to create project $projName in harbor"
+    exit 1
+fi
+
 echo_task "label node for different purposes"
 # TODO: If overwrite node's label which role=master
 if [[ $skipped -ne 1 ]]; then

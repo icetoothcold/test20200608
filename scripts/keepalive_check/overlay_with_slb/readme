@@ -1,0 +1,6 @@
+1. 在vrrp_instance 中添加如下行来配置notify script:
+    notify /path/to/notify.sh
+
+2. 本方案在ccb overlay中，通过添加iptables规则，来控制SLB监听器中健康的后端，达到两个infra节点在SLB转发时只有一个可用后端的目的。
+
+3. SLB使用的是透传模式。

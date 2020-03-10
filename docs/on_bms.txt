@@ -1,0 +1,8 @@
+1. 需要注意始终是否一致，否则etcd cluster将无法正常工作，调整时钟:
+  - date -s "YYYYMMDD hh:mm:ss"
+  - hwclock --systohc
+
+2. 如果已经跑起来了etcd cluster，但是报错发现时间不同步，可以在修复时间后，docker rm -f etcd*，然后用/usr/local/bin/etcd来重启
+
+3. rpm包冲突，我们的包是以7.4为基础拉下来的，但是BM的系统是7.5。这没什么关系，毕竟BM装的包一些是比我们使用的版本还要低的...
+   不建议通过rpm -e --nodeps 来处理，当发生包冲突时(一般是localinstall的时候)，可以选择手动yum localinstall 冲突包，然后在安装脚本中，将相应的包从安装步骤中去掉。

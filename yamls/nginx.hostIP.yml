@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-cm
+  namespace: default
+data:
+  boostrap: |
+    sed -i "s/Welcome to nginx/Welcome to $HOSTNAME.$HOST_IP/g" /usr/share/nginx/html/index.html
+    nginx -g "daemon off;"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+  namespace: default
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: local.harbor.io/library/nginx:1.15
+        ports:
+        - containerPort: 80
+        env:
+        - name: HOST_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        volumeMounts:
+        - mountPath: /root
+          name: bootstrap
+        command: ["bash", "/root/bootstrap"]
+      volumes:
+      - configMap:
+          name: nginx-cm
+        name: bootstrap
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+  labels:
+    app: nginx
+  namespace: default
+spec:
+  externalTrafficPolicy: Local
+  type: NodePort
+  ports:
+  - name: tcp8080
+    targetPort: 80
+    port: 8080
+  selector:
+    app: nginx

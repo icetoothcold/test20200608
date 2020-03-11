@@ -192,12 +192,17 @@ policycoreutils-2.5-29.el7_6.1.x86_64.rpm
 policycoreutils-python-2.5-29.el7_6.1.x86_64.rpm
 psmisc-22.20-16.el7.x86_64.rpm
 python-2.7.5-86.el7.x86_64.rpm
+python-devel-2.7.5-86.el7.x86_64.rpm
+python-libs-2.7.5-86.el7.x86_64.rpm
+python-rpm-macros-3-32.el7.noarch.rpm
+python-srpm-macros-3-32.el7.noarch.rpm
 python2-clustershell-1.8.1-2.el7.noarch.rpm
 python2-cryptography-1.7.2-2.el7.x86_64.rpm
 python2-jmespath-0.9.0-3.el7.noarch.rpm
 python2-pip-8.1.2-10.el7.noarch.rpm
 python2-pip-8.1.2-8.el7.noarch.rpm
 python2-pyasn1-0.1.9-7.el7.noarch.rpm
+python2-rpm-macros-3-32.el7.noarch.rpm
 python3-3.6.8-10.el7.x86_64.rpm
 python36-3.6.8-1.el7.x86_64.rpm
 python36-cached_property-1.5.1-2.el7.noarch.rpm

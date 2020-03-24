@@ -85,6 +85,7 @@ a9. 配置sysctl:
     echo "20000   65535" > /proc/sys/net/ipv4/ip_local_port_range
     echo "30000-32767" > /proc/sys/net/ipv4/ip_local_reserved_port
 
+    // really ?
     echo 10 > /proc/sys/vm/swappiness
 
     echo 1000000 > /proc/sys/fs/inotify/max_user_watches
@@ -156,7 +157,7 @@ c2. 修改kubelet-config.yaml:
 
 ::
 
-    vi /etc/kubernetes/kubelet-config.json
+    vi /etc/kubernetes/kubelet-config.yaml
     (edit) address, cgroupDriver
 
 c3. enable并启动kubelet:

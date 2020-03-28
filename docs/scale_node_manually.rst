@@ -139,11 +139,6 @@ b2. 获取join command:
 
 b3. !!所有master节点更新/etc/hosts，将新加节点的fqdn, hostname加入到/etc/hosts
 
-在集群已有计算节点上拷贝以下文件到新装节点对应路径
-
-  - /etc/nginx/nginx.conf
-  - /etc/kubernetes/manifests/nginx-proxy.yml
-
 在新安装的节点上执行:
 
 c1. 修改kubelet.env:
@@ -185,6 +180,15 @@ d2. label node
     kubectl label node <NEW-NODE> node-role.kubernetes.io/node=""
     kubectl label node <NEW-NODE> alcor.zone=XXX
     kubectl label node <NEW-NODE> cni=XXX
+
+在新装节点上:
+
+e1. 从集群已有计算节点上拷贝以下文件到新装节点对应路径
+
+  - /etc/nginx/nginx.conf
+  - /etc/kubernetes/manifests/nginx-proxy.yml
+
+e2. 重启Kubelet
 
 TODO
 ----

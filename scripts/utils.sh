@@ -8,7 +8,7 @@ clusterPath=$rootPath/clusters
 templatePath=$rootPath/templates
 
 
-myIP=`cat $rootPath/infra.yml | awk -F'"' '/myIP/{print $2}'`
+myIP=`cat $rootPath/infra.yml | awk -F'"' '/^myIP/{print $2}'`
 if [[ -z $myIP ]]; then
     myIP=`ip r get 8.8.8.8 | awk '{if(NR=1)print $7}'`
 fi
@@ -199,7 +199,7 @@ function parse_cluster_file
         parseFailed=1
     fi
     sed -i "s/kubeVersion.*/kubeVersion: $kubeVersion/" $clusterFile
-    force=`cat $clusterFile | awk '/force/{print $2}'`
+    force=`cat $clusterFile | awk '/^force/{print $2}'`
     if [[ $force != "true" ]]; then
         force="false"
     fi

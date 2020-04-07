@@ -286,6 +286,11 @@ function get_infra_nodename_strings
     python3 -c "import yaml; all=yaml.safe_load(open('$inventoryPath/$1/hosts.yml'))['all'];print(' '.join(host for host in all['hosts'].keys() if host in all['children']['kube-infra']['hosts'])) "
 }
 
+function get_all_host_ips
+{
+    python3 -c "import yaml; all=yaml.safe_load(open('$inventoryPath/$1/hosts.yml/hosts.yml'))['all']; print(' '.join([all['hosts'][host]['ip'] for host in all['hosts']]))"
+}
+
 function diff_and_cp
 {
     diff -q $1 $2 > /dev/null
@@ -374,7 +379,6 @@ function add_pkg_repo_tmp_vip
         ip a add dev $dev $vip/32
     done
 }
-
 
 function get_all_infra_ips
 {

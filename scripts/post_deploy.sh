@@ -32,6 +32,10 @@ echo_task "install some pkgs"
 if [[ $skipped -ne 1 ]]; then
     for host in ${kubeHostIPs[@]}; do
         ssh root@$host "yum install -y nfs-utils"
+        if [[ $? -ne 0 ]]; then
+            echo "Failed to install pkgs."
+            exit 1
+        fi
     done
 fi
 

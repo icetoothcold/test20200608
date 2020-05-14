@@ -1,0 +1,11 @@
+---
+- hosts: k8s-cluster
+  gather_facts: false
+  tasks:
+  - name: Create directory
+    file:
+      path: /var/log/kubelet
+      state: directory
+      mode: '0766'
+    ignore_errors: yes
+    

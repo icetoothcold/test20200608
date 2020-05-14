@@ -40,6 +40,7 @@ done
 echo "coredns_etcd_plugin_endpoints: \"$corednsEtcdEndpoints\"" >> $inventoryPath/$clusterName/group_vars/k8s-cluster/k8s-cluster.yml
 
 echo "Pre-deploy stage-2 jobs done, next use the follow command to deploy:"
+echo -e "    ansible-playbook -i $inventoryPath/$clusterName/hosts.yml $rootPath/scripts/pre_deploy_batch.yml -b --private-key=~/.ssh/id_rsa"
 echo -e "    ansible-playbook -i $inventoryPath/$clusterName/hosts.yml $rootPath/kubespray/cluster.yml -b --private-key=~/.ssh/id_rsa"
 echo -e "\twith --user=root if current user on this node is root"
 echo -e "\nAfter cluster deployed, run:"

@@ -273,7 +273,7 @@ function get_master_ips_string
 function get_etcd_ips_string
 {
     # return a string, not an array, but it's ok for for-loop
-    python3 -c "import yaml; all=yaml.safe_load(open('$inventoryPath/$1/hosts.yml'))['all']; print(' '.join([all['hosts'][host]['ip'] for host in all['hosts'] if host in all['children']['etcd']['hosts']]))"
+    python3 -c "import yaml; all=yaml.safe_load(open('$inventoryPath/$1/hosts.yml'))['all'];print(' '.join([all['hosts'][host]['ip'] for host in all['hosts'] if host in all['children']['etcd']['hosts']]))"
 }
 
 function get_node_nodename_strings
@@ -288,7 +288,7 @@ function get_infra_nodename_strings
 
 function get_all_host_ips
 {
-    python3 -c "import yaml; all=yaml.safe_load(open('$inventoryPath/$1/hosts.yml/hosts.yml'))['all']; print(' '.join([all['hosts'][host]['ip'] for host in all['hosts']]))"
+    python3 -c "import yaml; all=yaml.safe_load(open('$inventoryPath/$1/hosts.yml'))['all'];print(' '.join([all['hosts'][host]['ip'] for host in all['hosts']]))"
 }
 
 function diff_and_cp

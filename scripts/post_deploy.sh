@@ -128,12 +128,12 @@ if [[ $skipped -ne 1 ]]; then
     done
 fi
 
-echo_task "add cluster infra helm repo"
-if [[ $skipped -ne 1 ]]; then
-    for ip in ${masterIPs[@]}; do
-        ssh root@$ip "helm repo add infra $chartRepo/$clusterName/infra"
-    done
-fi
+#echo_task "add cluster infra helm repo"
+#if [[ $skipped -ne 1 ]]; then
+#    for ip in ${masterIPs[@]}; do
+#        ssh root@$ip "helm repo add infra $chartRepo/$clusterName/infra"
+#    done
+#fi
 
 echo_task "install ingress"
 if [[ $skipped -ne 1 ]]; then
@@ -146,15 +146,15 @@ if [[ $skipped -ne 1 ]]; then
         userPrefer=$defaultIngress
     fi
     if [[ $userPrefer == "traefik" ]]; then
-        ssh root@$masterA "helm repo update; helm del --purge ingress-tfk; helm install infra/traefik --name ingress-tfk --namespace kube-system"
+        ssh root@$masterA "helm repo update; helm del --purge ingress-tfk; helm install stable/traefik --name ingress-tfk --namespace kube-system"
     elif [[ $userPrefer == "nginx" ]]; then
-        ssh root@$masterA "helm repo update; helm del --purge nginx-ingress; helm install infra/nginx-ingress --set-string controller.nodeSelector.'node-role\.kubernetes\.io\/master=' --name nginx-ingress --namespace kube-system"
+        ssh root@$masterA "helm repo update; helm del --purge nginx-ingress; helm install stable/nginx-ingress --set-string controller.nodeSelector.'node-role\.kubernetes\.io\/master=' --name nginx-ingress --namespace kube-system"
     fi
 fi
 
 echo_task "install kube-oidc"
 if [[ $skipped -ne 1 ]]; then
-    ssh root@$masterA "helm repo update; helm del --purge koidc; helm install infra/kube-oidc --name koidc --namespace kube-system --set-file loginapp.issuerCA=/etc/ssl/dex/ca.pem --set-file dex.secret.tls.crt=/etc/ssl/dex/cert.pem --set-file dex.secret.tls.key=/etc/ssl/dex/key.pem"
+    ssh root@$masterA "helm repo update; helm del --purge koidc; helm install stable/kube-oidc --name koidc --namespace kube-system --set-file loginapp.issuerCA=/etc/ssl/dex/ca.pem --set-file dex.secret.tls.crt=/etc/ssl/dex/cert.pem --set-file dex.secret.tls.key=/etc/ssl/dex/key.pem"
 fi
 
 echo_task "rolebinding for administrator"
@@ -184,7 +184,7 @@ if [[ $skipped -ne 1 ]]; then
                                --from-file=/etc/ssl/etcd/ssl/ca.pem \
                                --from-file=/etc/ssl/etcd/ssl/node-\`hostname\`.pem \
                                --from-file=/etc/ssl/etcd/ssl/node-\`hostname\`-key.pem; \
-                           helm repo update; helm install infra/kube-prometheus --name kube-prometheus \
+                           helm repo update; helm install stable/kube-prometheus --name kube-prometheus \
                                --set clusterName=$clusterName,masters=\"$iplist\",masterAname=\`hostname\`"
     else
         echo "Skipped, since prometheus not enabled"

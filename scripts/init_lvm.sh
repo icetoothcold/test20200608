@@ -35,6 +35,8 @@ echo_task "init node lvm"
 if [[ $skipped -ne 1 ]];then
 	for node in ${nodeIPs[@]};do
 	  echo "init lvm on node $node."
+	  scp $rootPath/scripts/part-vdb.sh $node:/tmp/part-vdb.sh
+	  ssh root@$node 'fdisk /dev/vdb < /tmp/part-vdb.sh'
 	  scp $rootPath/scripts/node-lvm.sh $node:/tmp/node-lvm.sh
 	  ssh root@$node 'sh /tmp/node-lvm.sh'
 	  if [ $? -ne 0 ]; then

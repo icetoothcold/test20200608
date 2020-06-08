@@ -1,0 +1,67 @@
+apiVersion: monitoring.coreos.com/v1
+kind: Prometheus
+metadata:
+  labels:
+    prometheus: k8s
+  name: k8s
+  namespace: monitoring
+spec:
+  alerting:
+    alertmanagers:
+    - name: alertmanager-main
+      namespace: monitoring
+      port: web
+      pathPrefix: /alertmanager
+  baseImage: {{ .Values.imageRepo }}/prometheus/prometheus
+  containers:
+  - name: prometheus
+    ports:
+    - containerPort: 9090
+      hostPort: 9090
+      name: web
+      protocol: TCP
+  externalUrl: /prometheus
+  externalLabels:
+    cluster: {{ .Values.clusterName }}
+  routePrefix: /prometheus
+  nodeSelector:
+    node-role.kubernetes.io/master: ""
+  tolerations:
+  - effect: NoSchedule
+    key: node-role.kubernetes.io/master
+    operator: Exists
+  podMonitorSelector: {}
+  replicas: 2
+  resources:
+    limits:
+      cpu: "2"
+      memory: 8Gi
+    requests:
+      cpu: "1"
+      memory: 4Gi
+  retention: 30d
+  ruleSelector:
+    matchLabels:
+      prometheus: k8s
+      role: alert-rules
+  securityContext:
+    fsGroup: 2000
+    runAsNonRoot: true
+    runAsUser: 1000
+  secrets:
+  - etcd-certs
+  serviceAccountName: prometheus-k8s
+  serviceMonitorNamespaceSelector: {}
+  serviceMonitorSelector: {}
+  storage:
+    volumeClaimTemplate:
+      kind: PersistentVolumeClaim
+      metadata:
+        name: prometheus-k8s-db
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: {{ .Values.prometheusStorage }}
+  version: v2.11.0

@@ -23,6 +23,7 @@ nodeKubeletCM="node-kubelet-cm"
 bootstrapKubeletCMFile="/etc/kubernetes/my-kubelet-config.yaml"
 
 kubeNodeNames=`get_node_nodename_strings $clusterName`
+kubeMasterNames=`get_master_nodename_strings $clusterName`
 kubeInfraNames=`get_infra_nodename_strings $clusterName`
 kubeHostIPs=`get_all_host_ips $clusterName`
 
@@ -178,6 +179,8 @@ fi
 echo_task "install kube-prometheus"
 if [[ $skipped -ne 1 ]]; then
     if [[ $enablePrometheus == "true" ]]; then
+	    masterBname=`echo $kubeMasterNames | cut -d ' ' -f 2`
+		masterCname=`echo $kubeMasterNames | cut -d ' ' -f 3`
         iplist=`echo ${masterIPs[@]} | sed 's/ /,/g'`
         iplist="{"$iplist"}"
         ssh root@$masterA "kubectl -n monitoring create secret generic etcd-certs \
@@ -185,7 +188,9 @@ if [[ $skipped -ne 1 ]]; then
                                --from-file=/etc/ssl/etcd/ssl/node-\`hostname\`.pem \
                                --from-file=/etc/ssl/etcd/ssl/node-\`hostname\`-key.pem; \
                            helm repo update; helm install stable/kube-prometheus --name kube-prometheus \
-                               --set clusterName=$clusterName,masters=\"$iplist\",masterAname=\`hostname\`"
+                               --set clusterName=$clusterName,masters=\"$iplist\",masterAname=\`hostname\`, \
+							   masterBname=$masterBname,masterCname=$masterCname, \
+							   prometheusStorage=100Gi"
     else
         echo "Skipped, since prometheus not enabled"
     fi

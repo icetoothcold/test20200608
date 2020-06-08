@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-alertmanager-data-master2
+spec:
+  accessModes:
+  - ReadWriteOnce
+  capacity:
+    storage: 10Gi
+  local:
+    fsType: xfs
+    path: /opt/alertmanager/data
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - {{ .Values.masterBname }}
+  persistentVolumeReclaimPolicy: Retain
+  volumeMode: Filesystem

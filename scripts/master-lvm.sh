@@ -29,5 +29,12 @@ mkdir /var/lib/docker
 mkdir /var/lib/kubelet
 mkdir -p /monitoring/prometheus
 mkdir -p /logging/elasticsearch
+mkdir -p /opt/alertmanager/data
+mkdir -p /opt/grafana/data
 
 mount -a
+
+chmod 777 /monitoring/prometheus
+chmod 777 /logging/elasticsearch
+chmod 777 /opt/alertmanager/data
+chmod 777 /opt/grafana/data

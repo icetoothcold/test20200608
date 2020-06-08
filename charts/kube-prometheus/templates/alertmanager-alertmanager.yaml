@@ -1,0 +1,42 @@
+apiVersion: monitoring.coreos.com/v1
+kind: Alertmanager
+metadata:
+  labels:
+    alertmanager: main
+  name: main
+  namespace: monitoring
+spec:
+  externalUrl: /alertmanager
+  routePrefix: /alertmanager
+  baseImage: {{ .Values.imageRepo }}/prometheus/alertmanager
+  replicas: 2
+  nodeSelector:
+    node-role.kubernetes.io/master: ""
+  tolerations:
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/master
+      operator: Exists
+  resources:
+    limits:
+      cpu: 100m
+      memory: 200Mi
+    requests:
+      cpu: 20m
+      memory: 100Mi
+  securityContext:
+    fsGroup: 2000
+    runAsNonRoot: true
+    runAsUser: 1000
+  serviceAccountName: alertmanager-main
+  storage:
+    volumeClaimTemplate:
+      kind: PersistentVolumeClaim
+      metadata:
+        name: alertmanager-data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi
+  version: v0.18.0

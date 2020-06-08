@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-prometheus-k8s-db-master3
+spec:
+  accessModes:
+  - ReadWriteOnce
+  capacity:
+    storage: {{ .Values.prometheusStorage }}
+  local:
+    fsType: xfs
+    path: /monitoring/prometheus
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - {{ .Values.masterCname }}
+  persistentVolumeReclaimPolicy: Retain
+  volumeMode: Filesystem

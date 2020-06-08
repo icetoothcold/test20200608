@@ -1,0 +1,136 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  labels:
+    app: grafana
+  name: grafana
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+      - image: {{ .Values.imageRepo }}/grafana/grafana:6.2.2
+        name: grafana
+        ports:
+        - containerPort: 3000
+          name: http
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: http
+        resources:
+          limits:
+            cpu: 200m
+            memory: 200Mi
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        volumeMounts:
+        - mountPath: /var/lib/grafana
+          name: grafana-storage
+          readOnly: false
+        - mountPath: /etc/grafana/provisioning/datasources
+          name: grafana-datasources
+          readOnly: false
+        - mountPath: /etc/grafana/provisioning/dashboards
+          name: grafana-dashboards
+          readOnly: false
+        - mountPath: /grafana-dashboard-definitions/0/apiserver
+          name: grafana-dashboard-apiserver
+          readOnly: false
+        - mountPath: /grafana-dashboard-definitions/0/controller-manager
+          name: grafana-dashboard-controller-manager
+          readOnly: false
+        - mountPath: /grafana-dashboard-definitions/0/kubelet
+          name: grafana-dashboard-kubelet
+          readOnly: false
+        - mountPath: /grafana-dashboard-definitions/0/prometheus
+          name: grafana-dashboard-prometheus
+          readOnly: false
+        - mountPath: /grafana-dashboard-definitions/0/scheduler
+          name: grafana-dashboard-scheduler
+          readOnly: false
+        - mountPath: /grafana-dashboard-definitions/0/etcd
+          name: grafana-dashboard-etcd
+          readOnly: false
+        - mountPath: /grafana-dashboard-definitions/0/health-view
+          name: grafana-dashboard-health-view
+          readOnly: false
+        - mountPath: /grafana-dashboard-definitions/0/health-detail
+          name: grafana-dashboard-health-detail
+          readOnly: false
+        - mountPath: /grafana-dashboard-definitions/0/resource-view
+          name: grafana-dashboard-resource-view
+          readOnly: false
+        - mountPath: /grafana-dashboard-definitions/0/namespace
+          name: grafana-dashboard-namespace
+          readOnly: false
+        - mountPath: /grafana-dashboard-definitions/0/node
+          name: grafana-dashboard-node
+          readOnly: false
+        - mountPath: /grafana-dashboard-definitions/0/pod
+          name: grafana-dashboard-pod
+          readOnly: false
+      nodeSelector:
+        node-role.kubernetes.io/master: ""
+      tolerations:
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/master
+          operator: Exists
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+      serviceAccountName: grafana
+      volumes:
+      - hostPath:
+          path: /opt/grafana/data
+        name: grafana-storage
+      - name: grafana-datasources
+        secret:
+          secretName: grafana-datasources
+      - configMap:
+          name: grafana-dashboards
+        name: grafana-dashboards
+      - configMap:
+          name: grafana-dashboard-apiserver
+        name: grafana-dashboard-apiserver
+      - configMap:
+          name: grafana-dashboard-controller-manager
+        name: grafana-dashboard-controller-manager
+      - configMap:
+          name: grafana-dashboard-kubelet
+        name: grafana-dashboard-kubelet
+      - configMap:
+          name: grafana-dashboard-prometheus
+        name: grafana-dashboard-prometheus
+      - configMap:
+          name: grafana-dashboard-scheduler
+        name: grafana-dashboard-scheduler
+      - configMap:
+          name: grafana-dashboard-etcd
+        name: grafana-dashboard-etcd
+      - configMap:
+          name: grafana-dashboard-health-view
+        name: grafana-dashboard-health-view
+      - configMap:
+          name: grafana-dashboard-health-detail
+        name: grafana-dashboard-health-detail
+      - configMap:
+          name: grafana-dashboard-resource-view
+        name: grafana-dashboard-resource-view
+      - configMap:
+          name: grafana-dashboard-namespace
+        name: grafana-dashboard-namespace
+      - configMap:
+          name: grafana-dashboard-node
+        name: grafana-dashboard-node
+      - configMap:
+          name: grafana-dashboard-pod
+        name: grafana-dashboard-pod

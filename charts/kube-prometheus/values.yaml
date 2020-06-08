@@ -1,0 +1,5 @@
+imageRepo: {{ imageRepo }}
+clusterName: defaultClusterName
+masterBname: master2
+masterCname: master3
+prometheusStorage: 100Gi

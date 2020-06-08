@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: etcd-k8s
+  namespace: kube-system
+  labels:
+    k8s-app: etcd
+subsets:
+- addresses:
+  {{- range .Values.masters }}
+  - ip: {{ . | title }}
+  {{- end }}
+  ports:
+  - name: port
+    port: 2379
+    protocol: TCP
